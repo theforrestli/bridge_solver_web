@@ -60,8 +60,23 @@ function extendCondition(condition){
   condition.joints.forEach(function(joint){
     joint.hover=false;
     joint.select=false;
-  })
+  });
+  jQuery.extend(condition,ConditionPrototype);
 }
+ConditionPrototype={
+  isLegalPosition:function(p){
+    var bound=this.boundingPoly;
+    if(bound[0].y>p.y||bound[bound.length-1].y<p.y){
+      return false;
+    }
+    var t=0;
+    while(bound[t].y<p.y){
+      t++;
+    }
+    var r=(p.y-bound[t].y)/(bound[t+1].y-bound[t].y);
+    return bound[t+1].minX*r+bound[t].minX*(1-r)<=p.x&&p.x<=bound[t+1].maxX*r+bound[t].maxX*(1-r);
+  }
+};
 
 function extendBridge(bridge){
   //TODO handle condition being undefined
@@ -115,16 +130,6 @@ BridgePrototype={
       return joints.indexOf(joint)==-1;
     });
   },
-  /**
-   * it doesn't check anything
-   */
-  moveJoint:function(joints,dp){
-    joints.forEach(function(joint){
-      joint.x+=dp.x;
-      joint.y+=dp.y;
-    });
-    this.updateMemberP();
-  },
   
   updateMemberP:function(){
     this.members.forEach(function(member){
@@ -177,6 +182,7 @@ function extendSingleton(f,canvas){
   f.condition=f.inventory.conditions[f.bridge.conditionName];
   f.bridge.condition=f.condition;
   extendBridge(f.bridge);
+  extendCondition(f.condition);
   //handle canvas
   f.canvas=canvas;
   jQuery.extend(true,canvas,CanvasPrototype);
@@ -403,6 +409,38 @@ CanvasPrototype={
     }
     //draw box
     switch(singleton.mode){
+      case "move":
+        var tmp={};
+        var gridSize=singleton.inventory.gridSize;
+        tmp.x=Math.floor((this.newP.x-this.oldP.x)/gridSize)*gridSize;
+        tmp.y=Math.floor((this.newP.y-this.oldP.y)/gridSize)*gridSize;
+        if(tmp.x===0&&tmp.y===0){
+          break;
+        }
+        singleton.selectEntities.forEach(function(entity){
+          entity.x+=tmp.x;
+          entity.y+=tmp.y;
+        });
+        ctx.save();
+        ctx.lineWidth=0.1;
+        ctx.strokeStyle="#F00";
+        singleton.bridge.members.forEach(function(member){
+          var tmpj;
+          ctx.beginPath();
+          tmpj=member.J1;
+          ctx.moveTo(tmpj.x,tmpj.y);
+          tmpj=member.J2;
+          ctx.lineTo(tmpj.x,tmpj.y);
+          ctx.stroke();
+        });
+        ctx.restore();
+
+        singleton.selectEntities.forEach(function(entity){
+          entity.x-=tmp.x;
+          entity.y-=tmp.y;
+        });
+
+        break;
       case "selectBox":
         ctx.fillStyle="rgba(0,255,0,0.3)";
         ctx.rect(this.newP.x,this.newP.y,this.oldP.x-this.newP.x,this.oldP.y-this.newP.y);
@@ -487,8 +525,8 @@ CanvasPrototype={
         var gridSize=singleton.inventory.gridSize;
         tmp.x=Math.floor((this.newP.x-this.oldP.x)/gridSize)*gridSize;
         tmp.y=Math.floor((this.newP.y-this.oldP.y)/gridSize)*gridSize;
-        singleton.tryMoveJoints(tmp);
         singleton.mode="select";
+        singleton.tryMoveJoints(tmp);
         break;
       case "selectBox":
         singleton.setSelect(e.shiftKey);
@@ -578,7 +616,33 @@ SingletonPrototype={
    * selectEntities can contain members
    */
   tryMoveJoints: function(dp){
-    
+    var joints2=this.bridge.joints;
+    joints1=this.selectEntities.filter(function(entity){
+      return joints2.indexOf(entity)!==-1;
+    });
+    joints2=joints2.filter(function(joint){
+      return joints1.indexOf(joint)===-1;
+    });
+    var condition=this.condition;
+    if(joints1.some(function(joint1){
+      return (!condition.isLegalPosition({"x":joint1.x+dp.x,"y":joint1.y+dp.y}))
+    })){
+      return false;
+    }
+    if(joints1.some(function(joint1){
+      return joints2.some(function(joint2){
+        return joint1.x===joint2.x&&joint1.y==joint2.y;
+      });
+    })){
+      return false;
+    }
+    joints1.forEach(function(joint1){
+      joint1.x+=dp.x;
+      joint1.y+=dp.y;
+    });
+    this.bridge.updateMemberP();
+    this.repaintBridge();
+    return true;
   },
   tryAddJoint: function(p){
     
