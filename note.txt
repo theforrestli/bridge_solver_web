@@ -41,6 +41,9 @@ grid highlight
  can be handled smartly
  general grid
  highlight hover joint with symmetry
+ highlight hover when in canvas, select mode
+ highlight select when in move mode
+ 
 
 --- image ---
 mode:
