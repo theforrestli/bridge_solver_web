@@ -61,6 +61,10 @@ function extendCondition(condition){
     joint.hover=false;
     joint.select=false;
   });
+  var tmp=condition.boundingRect;
+  tmp.x2=tmp.x+tmp.width;
+  tmp.y2=tmp.y+tmp.height;
+  tmp.xm=tmp.x+tmp.width/2;
   jQuery.extend(condition,ConditionPrototype);
 }
 ConditionPrototype={
@@ -344,9 +348,40 @@ CanvasPrototype={
     ctx.save();
     ctx.translate(-this.transform.dx,-this.transform.dy);
     ctx.scale(1/this.transform.r,-1/this.transform.r);
+
+    //paint grid
+    ctx.save();
+    ctx.strokeStyle="#CCC";
+    ctx.lineWidth=0.1;
+    var boundingRect=singleton.condition.boundingRect;
+    var x=Math.floor(boundingRect.x);
+    while(x<=boundingRect.x2){
+      ctx.beginPath();
+      ctx.moveTo(x,boundingRect.y);
+      ctx.lineTo(x,boundingRect.y2);
+      ctx.stroke();
+      x+=1;
+    }
+    var y=Math.floor(boundingRect.y);
+    while(y<=boundingRect.y2){
+      ctx.beginPath();
+      ctx.moveTo(boundingRect.x,y);
+      ctx.lineTo(boundingRect.x2,y);
+      ctx.stroke();
+      y+=1;
+    }
+    ctx.lineWidth=0.2;
+    ctx.strokeStyle="red";
+    ctx.beginPath();
+    ctx.moveTo(boundingRect.xm,boundingRect.y);
+    ctx.lineTo(boundingRect.xm,boundingRect.y2);
+    ctx.stroke();
+
+    
+    ctx.restore();
     
     //draw valid zone
-    ctx.fillStyle="#FFE0E0";
+    ctx.fillStyle="rgba(255,128,128,0.5)";
     var boundingPoly=singleton.condition.boundingPoly;
     ctx.moveTo(boundingPoly[0].minX,boundingPoly[0].y);
     for(t=0;t<boundingPoly.length;++t){
@@ -400,17 +435,25 @@ CanvasPrototype={
       ctx.fill();
       if(joints[t].select){
         ctx.save();
+        ctx.beginPath();
+        ctx.arc(joints[t].x,joints[t].y,0.25,0,Math.PI*2);
         ctx.strokeStyle="#00F";
         ctx.stroke();
         ctx.restore();
       }
       if(joints[t].hover){
         ctx.save();
+        ctx.beginPath();
+        ctx.arc(joints[t].x,joints[t].y,0.25,0,Math.PI*2);
         ctx.strokeStyle="#000";
         ctx.stroke();
+        ctx.strokeStyle="#0F0";
+        ctx.lineWidth=0.06;
+        drawCross(ctx,joints[t].x,joints[t].y,boundingRect);
         ctx.restore();
       }
     }
+
     //draw box
     switch(singleton.mode){
       case "move":
@@ -436,6 +479,13 @@ CanvasPrototype={
           tmpj=member.J2;
           ctx.lineTo(tmpj.x,tmpj.y);
           ctx.stroke();
+        });
+        ctx.strokeStyle="#F00";
+        ctx.lineWidth=0.06;
+        singleton.bridge.joints.forEach(function(joint){
+          if(joint.select){
+            drawCross(ctx,joint.x,joint.y,boundingRect);
+          }
         });
         ctx.restore();
 
@@ -693,6 +743,23 @@ function stringifyS(o){
     f+=key+":"+o[key]+"\n";
   }
   return f;
+}
+
+function drawCross(ctx, x, y, rect){
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(x,rect.y);
+  ctx.lineTo(x,rect.y2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(rect.xm*2-x,rect.y);
+  ctx.lineTo(rect.xm*2-x,rect.y2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(rect.x,y);
+  ctx.lineTo(rect.x2,y);
+  ctx.stroke();
+  ctx.restore();
 }
 
 

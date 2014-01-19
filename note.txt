@@ -1,0 +1,52 @@
+--- proirity ---
+highlight
+analyze
+
+
+--- keys in canvas ---
+delete:   delete selected entities
+arrow:    move selected joints
+esc:      reset mode
+?: select only joints
+?: select only members
+?: change mode
+?: select similar member
+?: undo
+?: redo
+?: change type??
+
+--- components ---
+canvas
+mode selector
+ view, select mode
+member list
+ view type, force, etc
+ sort
+ select
+type selector
+ view curve, stats
+ select type
+bundle selector
+optimize button
+save/load button
+
+ 
+--- other TODOs ---
+analyze
+optimize
+load/save
+undo/redo
+shortcut keys
+grid highlight
+ can be handled smartly
+ general grid
+ highlight hover joint with symmetry
+ highlight hover when in canvas, select mode
+ highlight select when in move mode
+ 
+
+--- image ---
+mode:
+ select, joint, member --- S J M
+
+
