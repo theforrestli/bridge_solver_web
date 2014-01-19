@@ -83,6 +83,7 @@ function extendBridge(bridge){
     joint.hover=false;
     joint.select=false;
   });
+  bridge.entities=bridge.joints.concat(bridge.members);
   jQuery.extend(bridge,BridgePrototype);
   bridge.updateMemberP();
   console.debug(JSON.stringify(bridge));
@@ -180,7 +181,7 @@ function extendSingleton(f,canvas){
   f.canvas=canvas;
   jQuery.extend(true,canvas,CanvasPrototype);
   canvas.updateTransform();
-  f.mode="selectMember";
+  f.mode="select";
   f.selectEntities=[];
   f.hoverEntities=[];
   jQuery.extend(f,SingletonPrototype);
@@ -193,12 +194,9 @@ function extendCanvas(canvas){
   canvas.transform={r:0,dx:0,dy:0};
   /*
     switch(singleton.mode){
-      case "selectJoint":
-      case "moveJoint":
-      case "selectJointBox":
-      case "selectMember":
-      case "selectMember2":
-      case "selectMemberBox":
+      case "select":
+      case "selectBox":
+      case "move":
       case "createJoint":
       case "createJoint2":
       case "createMember":
@@ -405,8 +403,7 @@ CanvasPrototype={
     }
     //draw box
     switch(singleton.mode){
-      case "selectJointBox":
-      case "selectMemberBox":
+      case "selectBox":
         ctx.fillStyle="rgba(0,255,0,0.3)";
         ctx.rect(this.newP.x,this.newP.y,this.oldP.x-this.newP.x,this.oldP.y-this.newP.y);
         ctx.fill();
@@ -417,22 +414,14 @@ CanvasPrototype={
   onmousemove:function(e){
     this.updateNewP(e);
     switch(singleton.mode){
-      case "selectJoint":
-        singleton.setHover(this.getNearEntities(singleton.bridge.joints));
+      case "select":
+        singleton.setHover(this.getNearEntities(singleton.bridge.entities));
         break;
-      case "moveJoint":
-        
+      case "selectBox":
+        singleton.setHover(this.getBoxEntities(singleton.bridge.entities));
         break;
-      case "selectJointBox":
-        singleton.setHover(this.getBoxEntities(singleton.bridge.joints));
-        break;
-      case "selectMember":
-        singleton.setHover(this.getNearEntities(singleton.bridge.members));
-        break;
-      case "selectMember2":
-        break;
-      case "selectMemberBox":
-        singleton.setHover(this.getBoxEntities(singleton.bridge.members));
+      case "move":
+        //TODO
         break;
       case "createJoint":
       case "createJoint2":
@@ -453,25 +442,18 @@ CanvasPrototype={
     }
     this.oldP=jQuery.extend({},this.newP);
     switch(singleton.mode){
-      case "selectJoint":
-        var entities=this.getNearEntities(singleton.bridge.joints);
+      case "select":
+        var entities=this.getNearEntities(singleton.bridge.entities);
         if(entities.length===0){
-          singleton.mode="selectJointBox";
+          singleton.mode="selectBox";
         }else{
           singleton.setHover(entities);
-          singleton.setSelect(e.shiftKey);
-          singleton.mode="moveJoint";
-        }
-        break;
-      case "selectMember":
-        var entities=this.getNearEntities(singleton.bridge.members);
-        if(entities.length===0){
-          singleton.mode="selectMemberBox";
-        }else{
-          singleton.setHover(entities);
-          singleton.setSelect(e.shiftKey);
-          singleton.setHover([]);
-          singleton.mode="selectMember2";
+          if(e.shiftKey&singleton.selectEntities.indexOf(entities[0])!==-1){
+            
+          }else{
+            singleton.setSelect(e.shiftKey);
+          }
+          singleton.mode="move";
         }
         break;
       case "createJoint":
@@ -486,10 +468,6 @@ CanvasPrototype={
           singleton.mode="createMember2";
         }
         break;
-      case "selectJointBox":
-      case "moveJoint":
-      case "selectMemberBox":
-      case "selectMember2":
       case "createJoint2":
       case "createMember2":
         break;
@@ -502,31 +480,20 @@ CanvasPrototype={
       return;
     }
     switch(singleton.mode){
-      case "selectJoint":
+      case "select":
         break;
-      case "moveJoint":
-        //TODO
+      case "move":
         var tmp={};
         var gridSize=singleton.inventory.gridSize;
-        tmp.x=Math.floor((newP.x-oldP.x)/gridSize)*gridSize;
-        tmp.y=Math.floor((newP.y-oldP.y)/gridSize)*gridSize;
+        tmp.x=Math.floor((this.newP.x-this.oldP.x)/gridSize)*gridSize;
+        tmp.y=Math.floor((this.newP.y-this.oldP.y)/gridSize)*gridSize;
         singleton.tryMoveJoints(tmp);
-        singleton.mode="selectJoint";
+        singleton.mode="select";
         break;
-      case "selectJointBox":
+      case "selectBox":
         singleton.setSelect(e.shiftKey);
         singleton.setHover([]);
-        singleton.mode="selectJoint";
-        break;
-      case "selectMember":
-        break;
-      case "selectMember2":
-        singleton.mode="selectMember";
-        break;
-      case "selectMemberBox":
-        singleton.setSelect(e.shiftKey);
-        singleton.setHover([]);
-        singleton.mode="selectMember";
+        singleton.mode="select";
         break;
       case "createJoint":
         break;
@@ -607,6 +574,9 @@ SingletonPrototype={
     }
     this.repaintBridge();
   },
+  /**
+   * selectEntities can contain members
+   */
   tryMoveJoints: function(dp){
     
   },
