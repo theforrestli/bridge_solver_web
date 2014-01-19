@@ -73,6 +73,10 @@ ConditionPrototype={
     while(bound[t].y<p.y){
       t++;
     }
+    if(t===0){
+      return bound[0].minX<=p.x&&p.x<=bound[0].maxX;
+    }
+    t--;
     var r=(p.y-bound[t].y)/(bound[t+1].y-bound[t].y);
     return bound[t+1].minX*r+bound[t].minX*(1-r)<=p.x&&p.x<=bound[t+1].maxX*r+bound[t].maxX*(1-r);
   }
