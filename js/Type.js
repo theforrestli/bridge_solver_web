@@ -68,6 +68,8 @@ function extendMember(member){
   member.forceMax=0;
   member.hover=false;
   member.select=false;
+  member.x=(member.J1.x+member.J2.x)/2;
+  member.y=(member.J1.y+member.J2.y)/2;
 }
 
 function extendCondition(condition){
@@ -119,7 +121,6 @@ function extendBridge(bridge){
   });
   bridge.entities=bridge.joints.concat(bridge.members);
   jQuery.extend(bridge,BridgePrototype);
-  bridge.updateMemberP();
   console.debug(JSON.stringify(bridge));
 }
 
@@ -160,14 +161,14 @@ BridgePrototype={
   
   addMember:function(J1,J2,type){
     this.members.push({
-      "J1":J1,
-      "J2":J2,
-      "forces":[],
-      "forceMin":0,
-      "forceMax":0,
-      "x":(J1.x+J2.x)/2,
-      "y":(J1.y+J2.y)/2,
-      "type":type
+      J1:J1,
+      J2:J2,
+      forces:[],
+      forceMin:0,
+      forceMax:0,
+      x:(J1.x+J2.x)/2,
+      y:(J1.y+J2.y)/2,
+      type:type
     });
   },
   
@@ -476,7 +477,7 @@ CanvasPrototype={
       }
     }
 
-    //draw box
+    //draw mode
     switch(singleton.mode){
       case "move":
         var tmp={};
@@ -521,6 +522,21 @@ CanvasPrototype={
         ctx.fillStyle="rgba(0,255,0,0.3)";
         ctx.rect(this.newP.x,this.newP.y,this.oldP.x-this.newP.x,this.oldP.y-this.newP.y);
         ctx.fill();
+        break;
+      case "createJoint":
+      case "createJoint2":
+        var gridSize=singleton.inventory.gridSize;
+        var p={x:Math.floor(this.newP.x/gridSize+0.5)*gridSize,
+               y:Math.floor(this.newP.y/gridSize+0.5)*gridSize};
+        if(singleton.condition.isLegalPosition(p)){
+          ctx.fillStyle="blue";
+        }else{
+          ctx.fillStyle="red";
+        }
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,0.25,0,Math.PI*2);
+        ctx.fill();
+        break;
       case "createMember2":
         ctx.beginPath();
         if(singleton.selectEntities.length===1&&singleton.hoverEntities.length===1){
@@ -719,7 +735,7 @@ SingletonPrototype={
     });
     var condition=this.condition;
     if(joints1.some(function(joint1){
-      return (!condition.isLegalPosition({"x":joint1.x+dp.x,"y":joint1.y+dp.y}))
+      return (!condition.isLegalPosition({x:joint1.x+dp.x,y:joint1.y+dp.y}))
     })){
       return false;
     }
@@ -755,6 +771,7 @@ SingletonPrototype={
     }
     extendJoint(p);
     this.bridge.joints.push(p);   
+    this.bridge.entities=this.bridge.joints.concat(this.bridge.members);
   },
 
   tryAddMember: function(J1,J2){
@@ -768,9 +785,10 @@ SingletonPrototype={
       return false;
     }
     var type=this.bridge.members[this.bridge.members.length-1].type;
-    var tmp={"J1":J1,"J2":J2,"type":type};
+    var tmp={J1:J1,J2:J2,type:type};
     extendMember(tmp);
     this.bridge.members.push(tmp);
+    this.bridge.entities=this.bridge.joints.concat(this.bridge.members);
     return true;
   },
 
