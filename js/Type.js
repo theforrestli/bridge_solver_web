@@ -238,6 +238,7 @@ function extendCanvas(canvas){
   canvas.mouseDown=false;
   canvas.mouseIn=false;
   canvas.transform={r:0,dx:0,dy:0};
+  canbas.tabIndex=1000;
   jQuery.extend(canvas,CanvasPrototype);
 }
 CanvasPrototype={
@@ -520,6 +521,19 @@ CanvasPrototype={
         ctx.fillStyle="rgba(0,255,0,0.3)";
         ctx.rect(this.newP.x,this.newP.y,this.oldP.x-this.newP.x,this.oldP.y-this.newP.y);
         ctx.fill();
+      case "createMember2":
+        ctx.beginPath();
+        if(singleton.selectEntities.length===1&&singleton.hoverEntities.length===1){
+          var p1=singleton.selectEntities[0];
+          var p2=singleton.hoverEntities[0];
+          ctx.moveTo(p1.x,p1.y);
+          ctx.lineTo(p2.x,p2.y);
+          ctx.strokeStyle="#00AA00";
+          ctx.lineWidth=0.3;
+          ctx.stroke();
+          
+        }
+        
     }
     ctx.restore();
   },
@@ -572,7 +586,7 @@ CanvasPrototype={
       case "createJoint":
         singleton.mode="createJoint2";
         break;
-      case "createMemeber":
+      case "createMember":
         var entities=this.getNearEntities(singleton.bridge.joints.concat(singleton.condition.joints));
         if(entities.length===0){
           
@@ -588,7 +602,6 @@ CanvasPrototype={
   },
   
   onmouseup:function(e){
-    console.debug(e.button);
     if(e.button!==0){
       return;
     }
@@ -620,6 +633,8 @@ CanvasPrototype={
         if(entities.length!==0&&singleton.selectEntities.length!==0){
           singleton.tryAddMember(singleton.selectEntities[0],entities[0]);
         }
+        singleton.setHover([]);
+        singleton.setSelect(false);
         singleton.mode="createMember";
         break;
     }
@@ -635,12 +650,16 @@ CanvasPrototype={
   },
   
   onkeydown:function(e){
-    
+    console.debug(stringifyS(e));
+  },
+  onkeypress:function(e){
+    console.debug(stringifyS(e));
   },
   
   onkeyup:function(e){
     
   }
+  
 };
 SingletonPrototype={
   setHover: function(entities){
@@ -721,7 +740,8 @@ SingletonPrototype={
   },
 
   tryAddJoint: function(p){
-    if(!this.condition.isLegalPosition(p){
+    console.debug("adding joint");
+    if(!this.condition.isLegalPosition(p)){
       return false;
     }
     var joints=this.condition.joints.concat(this.bridge.joints);
@@ -738,6 +758,7 @@ SingletonPrototype={
   },
 
   tryAddMember: function(J1,J2){
+    console.debug("adding member");
     if(this.bridge.members.length>=this.inventory.maxMemberSize){
       return false;
     }
@@ -825,8 +846,8 @@ function drawCross(ctx, p, rect){
   ctx.lineTo(p.x,rect.y2);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(rect.xm*2-x,rect.y);
-  ctx.lineTo(rect.xm*2-x,rect.y2);
+  ctx.moveTo(rect.xm*2-p.x,rect.y);
+  ctx.lineTo(rect.xm*2-p.x,rect.y2);
   ctx.stroke();
   ctx.beginPath();
   ctx.moveTo(rect.x,p.y);
