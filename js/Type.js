@@ -56,12 +56,23 @@ function extendInventory(inventory){
   }
 }
 
+function extendJoint(joint){
+  joint.hover=false;
+  joint.select=false;
+  joint.dx=0;
+  joint.dy=0;
+}
+function extendMember(member){
+  member.forces=[];
+  member.forceMin=0;
+  member.forceMax=0;
+  member.hover=false;
+  member.select=false;
+}
+
 function extendCondition(condition){
   condition.joints.forEach(function(joint){
-    joint.hover=false;
-    joint.select=false;
-    joint.dx=0;
-    joint.dy=0;
+    extendJoint(joint);
   });
   var tmp=condition.boundingRect;
   tmp.x2=tmp.x+tmp.width;
@@ -100,18 +111,11 @@ function extendBridge(bridge){
     member.J2=getJointByIndex(bridge,member.j2);
     delete member.j1;
     delete member.j2;
-    member.forces=[];
-    member.forceMin=0;
-    member.forceMax=0;
-    member.hover=false;
-    member.select=false;
     member.type=bridge.type.bundle[bridge.type.member[t]];
+    extendMember(member);
   }
   bridge.joints.forEach(function(joint){
-    joint.hover=false;
-    joint.select=false;
-    joint.dx=0;
-    joint.dy=0;
+    extendJoint(joint);
   });
   bridge.entities=bridge.joints.concat(bridge.members);
   jQuery.extend(bridge,BridgePrototype);
@@ -466,7 +470,7 @@ CanvasPrototype={
         ctx.stroke();
         ctx.strokeStyle="#0F0";
         ctx.lineWidth=0.06;
-        drawCross(ctx,joints[t].x,joints[t].y,boundingRect);
+        drawCross(ctx,joints[t],boundingRect);
         ctx.restore();
       }
     }
@@ -501,7 +505,7 @@ CanvasPrototype={
         ctx.lineWidth=0.06;
         singleton.bridge.joints.forEach(function(joint){
           if(joint.select){
-            drawCross(ctx,joint.x,joint.y,boundingRect);
+            drawCross(ctx,joint,boundingRect);
           }
         });
         ctx.restore();
@@ -715,16 +719,68 @@ SingletonPrototype={
     this.repaintBridge();
     return true;
   },
+
   tryAddJoint: function(p){
-    
+    if(!this.condition.isLegalPosition(p){
+      return false;
+    }
+    var joints=this.condition.joints.concat(this.bridge.joints);
+    if(joints.length>=this.inventory.maxJointSize){
+      return false;
+    }
+    if(joints.some(function(joint){
+      return joint.x===p.x&&joint.y==p.y;
+    })){
+      return false;
+    }
+    extendJoint(p);
+    this.bridge.joints.push(p);   
   },
+
   tryAddMember: function(J1,J2){
-    
+    if(this.bridge.members.length>=this.inventory.maxMemberSize){
+      return false;
+    }
+    if(this.bridge.members.some(function(member){
+
+    })){
+      return false;
+    }
+    var type=this.bridge.members[this.bridge.members.length-1].type;
+    var tmp={"J1":J1,"J2":J2,"type":type};
+    extendMember(tmp);
+    this.bridge.members.push(tmp);
+    return true;
   },
-  
+
+  /**
+   * delete members and isolated joints
+   */
   deleteSelect: function(){
-    
+    var selectEntities=this.selectEntities;
+    this.bridge.members=this.bridge.members.filter(function(member){
+      var tmp;
+      tmp=selectEntities.indexOf(member.J1);
+      if(tmp!==-1){
+        selectEntities.splice(tmp,1);
+      }
+      tmp=selectEntities.indexOf(member.J2);
+      if(tmp!==-1){
+        selectEntities.splice(tmp,1);
+      }
+      tmp=selectEntities.indexOf(member);
+      if(tmp!==-1){
+        selectEntities.splice(tmp,1);
+        return false;
+      }else{
+        return true;
+      }
+    });
+    this.bridge.joints=this.bridge.joints.filter(function(joint){
+      return selectEntities.indexOf(joint)===-1;
+    });
   },
+
   setCondition: function(condition){
     
   },
@@ -762,19 +818,19 @@ function stringifyS(o){
   return f;
 }
 
-function drawCross(ctx, x, y, rect){
+function drawCross(ctx, p, rect){
   ctx.save();
   ctx.beginPath();
-  ctx.moveTo(x,rect.y);
-  ctx.lineTo(x,rect.y2);
+  ctx.moveTo(p.x,rect.y);
+  ctx.lineTo(p.x,rect.y2);
   ctx.stroke();
   ctx.beginPath();
   ctx.moveTo(rect.xm*2-x,rect.y);
   ctx.lineTo(rect.xm*2-x,rect.y2);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(rect.x,y);
-  ctx.lineTo(rect.x2,y);
+  ctx.moveTo(rect.x,p.y);
+  ctx.lineTo(rect.x2,p.y);
   ctx.stroke();
   ctx.restore();
 }
