@@ -56,10 +56,25 @@ function extendInventory(inventory){
   }
 }
 
+function extendJoint(joint){
+  joint.hover=false;
+  joint.select=false;
+  joint.dx=0;
+  joint.dy=0;
+}
+function extendMember(member){
+  member.forces=[];
+  member.forceMin=0;
+  member.forceMax=0;
+  member.hover=false;
+  member.select=false;
+  member.x=(member.J1.x+member.J2.x)/2;
+  member.y=(member.J1.y+member.J2.y)/2;
+}
+
 function extendCondition(condition){
   condition.joints.forEach(function(joint){
-    joint.hover=false;
-    joint.select=false;
+    extendJoint(joint);
   });
   var tmp=condition.boundingRect;
   tmp.x2=tmp.x+tmp.width;
@@ -88,6 +103,9 @@ ConditionPrototype={
 
 function extendBridge(bridge){
   //TODO handle condition being undefined
+  /*
+  */
+  bridge.condition=singleton.condition;
   for(var t=0;t<bridge.members.length;t++){
     member=bridge.members[t];
     //TODO singleton.joints is no longer avaliable
@@ -95,22 +113,17 @@ function extendBridge(bridge){
     member.J2=getJointByIndex(bridge,member.j2);
     delete member.j1;
     delete member.j2;
-    member.forces=[];
-    member.forceMin=0;
-    member.forceMax=0;
-    member.hover=false;
-    member.select=false;
     member.type=bridge.type.bundle[bridge.type.member[t]];
+    extendMember(member);
   }
   bridge.joints.forEach(function(joint){
-    joint.hover=false;
-    joint.select=false;
+    extendJoint(joint);
   });
   bridge.entities=bridge.joints.concat(bridge.members);
   jQuery.extend(bridge,BridgePrototype);
-  bridge.updateMemberP();
   console.debug(JSON.stringify(bridge));
 }
+
 
 function getJointByIndex(bridge,i){
   var length=bridge.condition.joints.length;
@@ -148,14 +161,14 @@ BridgePrototype={
   
   addMember:function(J1,J2,type){
     this.members.push({
-      "J1":J1,
-      "J2":J2,
-      "forces":[],
-      "forceMin":0,
-      "forceMax":0,
-      "x":(J1.x+J2.x)/2,
-      "y":(J1.y+J2.y)/2,
-      "type":type
+      J1:J1,
+      J2:J2,
+      forces:[],
+      forceMin:0,
+      forceMax:0,
+      x:(J1.x+J2.x)/2,
+      y:(J1.y+J2.y)/2,
+      type:type
     });
   },
   
@@ -188,14 +201,34 @@ function distance(p1,p2){
 function extendSingleton(f,canvas){
   f.bridge=f.inventory.bridges[f.bridgeName];
   f.condition=f.inventory.conditions[f.bridge.conditionName];
-  f.bridge.condition=f.condition;
   extendBridge(f.bridge);
   extendCondition(f.condition);
   //handle canvas
   f.canvas=canvas;
   jQuery.extend(true,canvas,CanvasPrototype);
   canvas.updateTransform();
+  /*
+  switch(singleton.mode){
+    case "select":
+    case "selectBox":
+    case "move":
+    case "createJoint":
+    case "createJoint2":
+    case "createMember":
+    case "createMember2":
+  }
+  */
   f.mode="select";
+  /*
+  switch(singleton.status){
+    case "unsynced":
+    case "pass":
+    case "fail":
+    case "illegal":
+  }
+  */
+  f.status="unsynced";
+  f.cost=0;
   f.selectEntities=[];
   f.hoverEntities=[];
   jQuery.extend(f,SingletonPrototype);
@@ -206,17 +239,7 @@ function extendCanvas(canvas){
   canvas.mouseDown=false;
   canvas.mouseIn=false;
   canvas.transform={r:0,dx:0,dy:0};
-  /*
-    switch(singleton.mode){
-      case "select":
-      case "selectBox":
-      case "move":
-      case "createJoint":
-      case "createJoint2":
-      case "createMember":
-      case "createMember2":
-    }
-   */
+  canbas.tabIndex=1000;
   jQuery.extend(canvas,CanvasPrototype);
 }
 CanvasPrototype={
@@ -449,12 +472,12 @@ CanvasPrototype={
         ctx.stroke();
         ctx.strokeStyle="#0F0";
         ctx.lineWidth=0.06;
-        drawCross(ctx,joints[t].x,joints[t].y,boundingRect);
+        drawCross(ctx,joints[t],boundingRect);
         ctx.restore();
       }
     }
 
-    //draw box
+    //draw mode
     switch(singleton.mode){
       case "move":
         var tmp={};
@@ -484,7 +507,7 @@ CanvasPrototype={
         ctx.lineWidth=0.06;
         singleton.bridge.joints.forEach(function(joint){
           if(joint.select){
-            drawCross(ctx,joint.x,joint.y,boundingRect);
+            drawCross(ctx,joint,boundingRect);
           }
         });
         ctx.restore();
@@ -499,6 +522,34 @@ CanvasPrototype={
         ctx.fillStyle="rgba(0,255,0,0.3)";
         ctx.rect(this.newP.x,this.newP.y,this.oldP.x-this.newP.x,this.oldP.y-this.newP.y);
         ctx.fill();
+        break;
+      case "createJoint":
+      case "createJoint2":
+        var gridSize=singleton.inventory.gridSize;
+        var p={x:Math.floor(this.newP.x/gridSize+0.5)*gridSize,
+               y:Math.floor(this.newP.y/gridSize+0.5)*gridSize};
+        if(singleton.condition.isLegalPosition(p)){
+          ctx.fillStyle="blue";
+        }else{
+          ctx.fillStyle="red";
+        }
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,0.25,0,Math.PI*2);
+        ctx.fill();
+        break;
+      case "createMember2":
+        ctx.beginPath();
+        if(singleton.selectEntities.length===1&&singleton.hoverEntities.length===1){
+          var p1=singleton.selectEntities[0];
+          var p2=singleton.hoverEntities[0];
+          ctx.moveTo(p1.x,p1.y);
+          ctx.lineTo(p2.x,p2.y);
+          ctx.strokeStyle="#00AA00";
+          ctx.lineWidth=0.3;
+          ctx.stroke();
+          
+        }
+        
     }
     ctx.restore();
   },
@@ -551,7 +602,7 @@ CanvasPrototype={
       case "createJoint":
         singleton.mode="createJoint2";
         break;
-      case "createMemeber":
+      case "createMember":
         var entities=this.getNearEntities(singleton.bridge.joints.concat(singleton.condition.joints));
         if(entities.length===0){
           
@@ -567,7 +618,6 @@ CanvasPrototype={
   },
   
   onmouseup:function(e){
-    console.debug(e.button);
     if(e.button!==0){
       return;
     }
@@ -599,6 +649,8 @@ CanvasPrototype={
         if(entities.length!==0&&singleton.selectEntities.length!==0){
           singleton.tryAddMember(singleton.selectEntities[0],entities[0]);
         }
+        singleton.setHover([]);
+        singleton.setSelect(false);
         singleton.mode="createMember";
         break;
     }
@@ -614,12 +666,16 @@ CanvasPrototype={
   },
   
   onkeydown:function(e){
-    
+    console.debug(stringifyS(e));
+  },
+  onkeypress:function(e){
+    console.debug(stringifyS(e));
   },
   
   onkeyup:function(e){
     
   }
+  
 };
 SingletonPrototype={
   setHover: function(entities){
@@ -679,7 +735,7 @@ SingletonPrototype={
     });
     var condition=this.condition;
     if(joints1.some(function(joint1){
-      return (!condition.isLegalPosition({"x":joint1.x+dp.x,"y":joint1.y+dp.y}))
+      return (!condition.isLegalPosition({x:joint1.x+dp.x,y:joint1.y+dp.y}))
     })){
       return false;
     }
@@ -698,16 +754,72 @@ SingletonPrototype={
     this.repaintBridge();
     return true;
   },
+
   tryAddJoint: function(p){
-    
+    console.debug("adding joint");
+    if(!this.condition.isLegalPosition(p)){
+      return false;
+    }
+    var joints=this.condition.joints.concat(this.bridge.joints);
+    if(joints.length>=this.inventory.maxJointSize){
+      return false;
+    }
+    if(joints.some(function(joint){
+      return joint.x===p.x&&joint.y==p.y;
+    })){
+      return false;
+    }
+    extendJoint(p);
+    this.bridge.joints.push(p);   
+    this.bridge.entities=this.bridge.joints.concat(this.bridge.members);
   },
+
   tryAddMember: function(J1,J2){
-    
+    console.debug("adding member");
+    if(this.bridge.members.length>=this.inventory.maxMemberSize){
+      return false;
+    }
+    if(this.bridge.members.some(function(member){
+
+    })){
+      return false;
+    }
+    var type=this.bridge.members[this.bridge.members.length-1].type;
+    var tmp={J1:J1,J2:J2,type:type};
+    extendMember(tmp);
+    this.bridge.members.push(tmp);
+    this.bridge.entities=this.bridge.joints.concat(this.bridge.members);
+    return true;
   },
-  
+
+  /**
+   * delete members and isolated joints
+   */
   deleteSelect: function(){
-    
+    var selectEntities=this.selectEntities;
+    this.bridge.members=this.bridge.members.filter(function(member){
+      var tmp;
+      tmp=selectEntities.indexOf(member.J1);
+      if(tmp!==-1){
+        selectEntities.splice(tmp,1);
+      }
+      tmp=selectEntities.indexOf(member.J2);
+      if(tmp!==-1){
+        selectEntities.splice(tmp,1);
+      }
+      tmp=selectEntities.indexOf(member);
+      if(tmp!==-1){
+        selectEntities.splice(tmp,1);
+        return false;
+      }else{
+        return true;
+      }
+    });
+    this.bridge.joints=this.bridge.joints.filter(function(joint){
+      return selectEntities.indexOf(joint)===-1;
+    });
   },
+
   setCondition: function(condition){
     
   },
@@ -745,19 +857,19 @@ function stringifyS(o){
   return f;
 }
 
-function drawCross(ctx, x, y, rect){
+function drawCross(ctx, p, rect){
   ctx.save();
   ctx.beginPath();
-  ctx.moveTo(x,rect.y);
-  ctx.lineTo(x,rect.y2);
+  ctx.moveTo(p.x,rect.y);
+  ctx.lineTo(p.x,rect.y2);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(rect.xm*2-x,rect.y);
-  ctx.lineTo(rect.xm*2-x,rect.y2);
+  ctx.moveTo(rect.xm*2-p.x,rect.y);
+  ctx.lineTo(rect.xm*2-p.x,rect.y2);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(rect.x,y);
-  ctx.lineTo(rect.x2,y);
+  ctx.moveTo(rect.x,p.y);
+  ctx.lineTo(rect.x2,p.y);
   ctx.stroke();
   ctx.restore();
 }
