@@ -60,6 +60,8 @@ function extendCondition(condition){
   condition.joints.forEach(function(joint){
     joint.hover=false;
     joint.select=false;
+    joint.dx=0;
+    joint.dy=0;
   });
   var tmp=condition.boundingRect;
   tmp.x2=tmp.x+tmp.width;
@@ -88,6 +90,9 @@ ConditionPrototype={
 
 function extendBridge(bridge){
   //TODO handle condition being undefined
+  /*
+  */
+  bridge.condition=singleton.condition;
   for(var t=0;t<bridge.members.length;t++){
     member=bridge.members[t];
     //TODO singleton.joints is no longer avaliable
@@ -105,12 +110,15 @@ function extendBridge(bridge){
   bridge.joints.forEach(function(joint){
     joint.hover=false;
     joint.select=false;
+    joint.dx=0;
+    joint.dy=0;
   });
   bridge.entities=bridge.joints.concat(bridge.members);
   jQuery.extend(bridge,BridgePrototype);
   bridge.updateMemberP();
   console.debug(JSON.stringify(bridge));
 }
+
 
 function getJointByIndex(bridge,i){
   var length=bridge.condition.joints.length;
@@ -188,14 +196,34 @@ function distance(p1,p2){
 function extendSingleton(f,canvas){
   f.bridge=f.inventory.bridges[f.bridgeName];
   f.condition=f.inventory.conditions[f.bridge.conditionName];
-  f.bridge.condition=f.condition;
   extendBridge(f.bridge);
   extendCondition(f.condition);
   //handle canvas
   f.canvas=canvas;
   jQuery.extend(true,canvas,CanvasPrototype);
   canvas.updateTransform();
+  /*
+  switch(singleton.mode){
+    case "select":
+    case "selectBox":
+    case "move":
+    case "createJoint":
+    case "createJoint2":
+    case "createMember":
+    case "createMember2":
+  }
+  */
   f.mode="select";
+  /*
+  switch(singleton.status){
+    case "unsynced":
+    case "pass":
+    case "fail":
+    case "illegal":
+  }
+  */
+  f.status="unsynced";
+  f.cost=0;
   f.selectEntities=[];
   f.hoverEntities=[];
   jQuery.extend(f,SingletonPrototype);
@@ -206,17 +234,6 @@ function extendCanvas(canvas){
   canvas.mouseDown=false;
   canvas.mouseIn=false;
   canvas.transform={r:0,dx:0,dy:0};
-  /*
-    switch(singleton.mode){
-      case "select":
-      case "selectBox":
-      case "move":
-      case "createJoint":
-      case "createJoint2":
-      case "createMember":
-      case "createMember2":
-    }
-   */
   jQuery.extend(canvas,CanvasPrototype);
 }
 CanvasPrototype={
