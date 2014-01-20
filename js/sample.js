@@ -13,6 +13,8 @@ singleton=
   "c":1,
   "bundleCost":1000,
   "jointSingleCost":300,
+  "maxJointSize":50,
+  "maxMemberSie":100,
   "deckTypes":[
     {"name":"med","cost":4700,"weightExpr":"inventory.deadLoadFactor * 120.265 + 33.097"},
     {"name":"high","cost":5000,"weightExpr":"inventory.deadLoadFactor * 82.608 + 33.097"}
