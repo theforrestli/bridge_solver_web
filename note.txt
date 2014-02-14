@@ -1,3 +1,22 @@
+--- original ---
+menus:
+(new load save print) (edit analyze) (select_all select_none) (undo redo) (iteration last next all) (cost detail) (status report)
+(material) (shape) (size) (increase decrease) (? label assist_line ?) (low medium high_grid)
+tools:
+(new_joint new_member select_mode erase_mode)
+ruler:
+number scale assist
+background:
+(ground_or_mountain) (rest_of_road) (pier) (pier?) (river)
+foreground:
+deck joint member ...
+...
+
+
+
+
+
+
 --- proirity ---
 all bridge modification operations
 analyze
