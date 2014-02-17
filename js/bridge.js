@@ -8,7 +8,7 @@ function wpbd_bridge_parseByte(f,s){
     if (wpbd_scanUnsigned(4, "bridge designer version",buf) != 2014) {
         throw ("bridge design file version is not 2014");
     }
-    var scenarioCode = wpbd_scanUnsigned(10, "scenario code");
+    var scenarioCode = wpbd_scanUnsigned(10, "scenario code",buf);
     //TODO
     f.condition = wpbd_condition_get_from_code(scenarioCode);
     if (f.condition== null) {
@@ -20,9 +20,9 @@ function wpbd_bridge_parseByte(f,s){
         var x = wpbd_scanInt(3, "joint " + n + " x-coordinate",buf)/4.;
         var y = wpbd_scanInt(3, "joint " + n + " y-coordinate",buf)/4.;
         //TODO getNPrescribedJoints
-        if (n <= f.condition.joints.length){
-            var joint = f.condition.joints[n-1];
-            if ((x != joint.x) || (y != joint.y))) {
+        if (n <= f.condition.prescribedJoints.length){
+            var joint = f.condition.prescribedJoints[n-1];
+            if ((x != joint.x) || (y != joint.y)) {
                 throw ("bad prescribed joint " + n);
             }
             f.joints.push(joint);
@@ -38,8 +38,9 @@ function wpbd_bridge_parseByte(f,s){
         var sectionIndex = wpbd_scanUnsigned(1, "section index of member " + n,buf);
         var sizeIndex = wpbd_scanUnsigned(2, "size index of member " + n,buf);
         //TODO
-        f.members.add(wpbd_member_new(n-1, f.joints[jointANumber - 1], f.joints[jointBNumber - 1], wpbd.materials[materialIndex],wpbd.shapes[sectionIndex][sizeIndex]));
+        f.members.push(wpbd_member_new(n-1, f.joints[jointANumber - 1], f.joints[jointBNumber - 1], wpbd.materials[materialIndex],wpbd.shapes[sectionIndex][sizeIndex]));
     }
+    console.debug("parse test");
     for (var i = 0; i < n_members; i++){
         var member = f.members[i];
         member.compressionForceStrengthRatio=parseFloat(wpbd_scanToDelimiter("compression/strength ratio",buf));
@@ -54,16 +55,16 @@ function wpbd_bridge_toString(bridge){
   var f="";
   f+="2014";
   //TODO
-  f+=wpbd_writeNumber(10,bridge.condition.code);
+  f+=wpbd_writeNumber(10,bridge.condition.codeLong);
   f+=wpbd_writeNumber(2,bridge.joints.length);
   f+=wpbd_writeNumber(3,bridge.members.length);
   bridge.joints.forEach(function(joint){
-    f+=wpbd_writeNumber(3,int(joint.x*4));
-    f+=wpbd_writeNumber(3,int(joint.y*4));
+    f+=wpbd_writeNumber(3,Math.floor(joint.x*4));
+    f+=wpbd_writeNumber(3,Math.floor(joint.y*4));
   });
   bridge.members.forEach(function(member){
-    f+=wpbd_writeNumber(2,member.jointA.index);
-    f+=wpbd_writeNumber(2,member.jointB.index);
+    f+=wpbd_writeNumber(2,member.jointA.index+1);
+    f+=wpbd_writeNumber(2,member.jointB.index+1);
   //TODO
     f+=wpbd_writeNumber(1,member.material.index);
     f+=wpbd_writeNumber(1,member.shape.section.index);
@@ -72,20 +73,21 @@ function wpbd_bridge_toString(bridge){
   bridge.members.forEach(function(member){
     f+=member.compressionForceStrengthRatio.toFixed(2)+"|"+member.tensionForceStrengthRatio.toFixed(2)+"|";
   });
-  f+=bridge.designedBy+"|"+bridge.projectId+"|"+bridge.interation+"|"+bridge.labelPosition.toFixed(3)+"|";
+  f+=bridge.designedBy+"|"+bridge.projectId+"|"+bridge.iterationNumber+"|"+bridge.labelPosition.toFixed(3)+"|";
   return f;
 }
     
 function wpbd_scanUnsigned(width,what,buf){
     //throws IOException
+    /*
     val = 0;
-    while ((width > 0) && (buf.readBuf[buf.readPtr] == 32))
+    while ((width > 0) && (buf.readBuf[buf.readPtr] == " "))
     {
         width--;
         buf.readPtr += 1;
     }
     while (width > 0) {
-        if ((48 <= buf.readBuf[buf.readPtr]) && (buf.readBuf[buf.readPtr] <= 57)){
+        if (("0" <= buf.readBuf[buf.readPtr]) && (buf.readBuf[buf.readPtr] <= "9")){
             val = val * 10 + (buf.readBuf[buf.readPtr] - 48);
             width--;
             buf.readPtr += 1;
@@ -94,6 +96,13 @@ function wpbd_scanUnsigned(width,what,buf){
         }
     }
     return val;
+    */
+    var f=parseInt(buf.readBuf.substring(buf.readPtr,buf.readPtr+width));
+    buf.readPtr+=width;
+    if(isNaN(f)){
+        throw ("couldn't scan " + what);
+    }
+    return f;
 }
 
 function wpbd_writeNumber(width,number){
@@ -103,19 +112,20 @@ function wpbd_writeNumber(width,number){
 
 function wpbd_scanInt(width,what,buf){
     //throws IOException
+    /*
     var val = 0;
     var negate_p = false;
-    while ((width > 0) && (buf.readBuf[buf.readPtr] == 32)){
+    while ((width > 0) && (buf.readBuf[buf.readPtr] == " ")){
         width--;
         buf.readPtr += 1;
     }
-    if ((width >= 2) && (buf.readBuf[buf.readPtr] == 45)){
+    if ((width >= 2) && (buf.readBuf[buf.readPtr] == "-")){
         width--;
         buf.readPtr += 1;
         negate_p = true;
     }
     while (width > 0) {
-        if ((48 <= buf.readBuf[buf.readPtr]) && (buf.readBuf[buf.readPtr] <= 57)){
+        if (("0" <= buf.readBuf[buf.readPtr]) && (buf.readBuf[buf.readPtr] <= "9")){
             val = val * 10 + (buf.readBuf[buf.readPtr] - 48);
             width--;
             buf.readPtr += 1;
@@ -124,10 +134,17 @@ function wpbd_scanInt(width,what,buf){
         }
     }
     return negate_p ? -val : val;
+    */
+    var f=parseInt(buf.readBuf.substring(buf.readPtr,buf.readPtr+width));
+    buf.readPtr+=width;
+    if(isNaN(f)){
+        throw ("couldn't scan " + what);
+    }
+    return f;
 }
 function wpbd_scanToDelimiter(what,buf){
     var readPtrOld=buf.readPtr;
-    while (buf.readBuf[buf.readPtr] != 124)
+    while (buf.readBuf[buf.readPtr] != "|")
     {
         buf.readPtr += 1;
     }
@@ -138,7 +155,7 @@ function wpbd_scanToDelimiter(what,buf){
 function wpbd_joint_new(i,x,y,fixed){
     return {"index":i,"x":x,"y":y,"fixed":fixed};
 }
-function wbpd_member_new(i,j1,j2,material,shape){
+function wpbd_member_new(i,j1,j2,material,shape){
     return {"index":i,"jointA":j1,"jointB":j2,"material":material,"shape":shape};
 }
 /**
@@ -154,7 +171,7 @@ function wpbd_condition_get_from_code(codeLong){
     f.code=Array(10);
     for(var t=0;t<10;t++){
         f.code[9-t]=codeLong%10;
-        codeLong/=10;
+        codeLong=Math.floor(codeLong/10);
     }
     
     if(wpbd_condition_getCodeError(f.code)!=0){
@@ -282,12 +299,12 @@ function wpbd_condition_get_from_code(codeLong){
       i++;
       f.nJointRestraints += 2;
     }
-    f.allowableSlenderness = ((leftCable) || (rightCable) ? 1e100 : wpbd.maxSlenderness;
+    f.allowableSlenderness = (leftCable) || (rightCable) ? 1e100 : wpbd.maxSlenderness;
     
     //TODO
     f.excavationVolume = wpbd.deckElevationIndexToExcavationVolume[Math.floor(f.deckElevation / 4)];
     f.deckCostRate = (f.deckType == wpbd.MEDIUM_STRENGTH_DECK ? wpbd.deckCostPerPanelMedStrength : wpbd.deckCostPerPanelHiStrength);
-    if (tag==wpbd.fromKeyCode)
+    if (f.tag==wpbd.fromKeyCode)
     {
       f.totalFixedCost = 170000.0;
       if (pier)
@@ -320,7 +337,7 @@ function wpbd_condition_get_from_code(codeLong){
       f.pierCost = (pier ? Math.max(f.pierPanelIndex, f.nPanels - f.pierPanelIndex) * wpbd.pierIncrementalCostPerDeckPanel
               + wpbd.pierHeightToCost[Math.floor(f.pierHeight / 4)]
               + wpbd.pierBaseCost
-              :0;
+              :0);
       f.totalFixedCost = (f.excavationVolume * wpbd.excavationCostRate+ f.abutmentCost + f.pierCost + f.nPanels * f.deckCostRate + f.nAnchorages * wpbd.anchorageCost);
     }
     // Steve's calcs are for both abutments. UI presents unit cost.
@@ -331,7 +348,7 @@ function wpbd_condition_get_from_code(codeLong){
     arch? [0, f.nPanels, f.archJointIndex, f.archJointIndex+1]:
     pier? [0, f.nPanels, f.pierJointIndex]:
     [0, f.nPanels];
-  }
+    return f;
 }
 function wpbd_condition_getCodeError(code){
     if (code === undefined) {
@@ -393,9 +410,9 @@ function wpbd_condition_getCodeError(code){
     {
       var xp = pierPanelIndex * wpbd.panelSizeWorld;
       var yp = deckElev - under;
-      var xL = 0.0D;
+      var xL = 0.0;
       var yL = deckElev;
-      var xR = nPanels * 4.0D;
+      var xR = nPanels * 4.0;
       var yR = yL;
       if (xp < xL + (yL - yp) * 0.5) {
         return 98;
@@ -407,6 +424,7 @@ function wpbd_condition_getCodeError(code){
     return 0;
 }
 function wpbd_singleton(){
+  f={};
   f.anchorOffset = 8.0;
   f.panelSizeWorld = 4.0;
   f.gapDepth = 24.0;
@@ -428,10 +446,10 @@ function wpbd_singleton(){
   f.archIncrementalCostPerDeckPanel = 3600.0;
   f.pierIncrementalCostPerDeckPanel = 4500.0;
   f.pierBaseCost = 3000.0;
-  f.deckElevationIndexToExcavationVolume = { 100000.0, 85000.0, 67000.0, 50000.0, 34000.0, 15000.0, 0.0 };
-  f.deckElevationIndexToKeycodeAbutmentCosts = { 7000.0, 7000.0, 7500.0, 7500.0, 8000.0, 8000.0, 8500.0 };
-  f.underClearanceIndexToCost = { -2000.0, 5400.0, 15000.0, 24400.0, 35500.0, 49700.0 };
-  f.pierHeightToCost = { 0.0, 2800.0, 5600.0, 8400.0, 11200.0, 14000.0, 16800.0 };
+  f.deckElevationIndexToExcavationVolume = [ 100000.0, 85000.0, 67000.0, 50000.0, 34000.0, 15000.0, 0.0 ];
+  f.deckElevationIndexToKeycodeAbutmentCosts = [ 7000.0, 7000.0, 7500.0, 7500.0, 8000.0, 8000.0, 8500.0 ];
+  f.underClearanceIndexToCost = [ -2000.0, 5400.0, 15000.0, 24400.0, 35500.0, 49700.0 ];
+  f.pierHeightToCost = [ 0.0, 2800.0, 5600.0, 8400.0, 11200.0, 14000.0, 16800.0 ];
   f.conditions = {
       "1110824000":"01A", "2110824000":"01B", "3110824000":"01C", "4110824000":"01D",
       "1101220000":"02A", "2101220000":"02B", "3101220000":"02C", "4101220000":"02D",
@@ -547,9 +565,9 @@ function wpbd_singleton(){
         320, 340, 360, 400, 500                                    /* 28 to 32 */
     ];
     f.crossSections = [
-    {"index":0,"name":"Solid Bar","shortName":"Bar","getShapes":function(this,wpbd){
-        var nSizes = widths.length;
-        var f = Array(nSize);
+    {"index":0,"name":"Solid Bar","shortName":"Bar","getShapes":function(wpbd){
+        var nSizes = wpbd.widths.length;
+        var f = Array(nSizes);
         for (var i=0;i<nSizes;i++){
             var width = wpbd.widths[i];
             var area = width*width * 1e-6;
@@ -559,9 +577,9 @@ function wpbd_singleton(){
         return f;
 
     }},
-    {"index":1,"name":"Solid Bar","shortName":"Bar","getShapes":function(this,wpbd){
+    {"index":1,"name":"Solid Bar","shortName":"Bar","getShapes":function(wpbd){
         var nSizes = wpbd.widths.length;
-        var f=Array(nSize);
+        var f=Array(nSizes);
         for(var i=0;i<nSizes;i++){
             var width = wpbd.widths[i];
             /*
@@ -590,6 +608,7 @@ function wpbd_singleton(){
     for(var i=0;i<f.crossSections.length;i++){
         f.shapes[i]=f.crossSections[i].getShapes(f);
     }
+    return f;
 }
 function wpbd_material_new(index,name,shortName,E,Fy,density,cost){
     return {
@@ -606,7 +625,7 @@ function wpbd_material_get(index){
 function wpbd_shape_get(sectionIndex,sizeIndex){
     return wpbd.shapes[sectionIndex][sizeIndex];
 }
-function wpbd_shape_new(section,sizeIndex,name,width,area,moment,inverseRadiusOfGyration,thichness){
+function wpbd_shape_new(section,sizeIndex,name,width,area,moment,inverseRadiusOfGyration,thickness){
     return {
         "section":section,
         "sizeIndex":sizeIndex,
@@ -615,5 +634,14 @@ function wpbd_shape_new(section,sizeIndex,name,width,area,moment,inverseRadiusOf
         "area":area,
         "moment":moment,
         "inverseRadiusOfGyration":Math.sqrt(area/moment),
-        "thichness":thickness};
+        "thickness":thickness};
 }
+
+input="2014205320000011 19  0  0 16  0 32  0 48  0 64  0 80  0  8 16 24 16 40 16 56 16 72 16 1 70016 7 80016 8 90016 91000161011001611 60016 6 50016 5 40016 4 30016 3 20016 2 10016 7 20016 2 80016 8 30016 3 90016 9 40016 410001610 50016 51100160.40|0.00|0.31|0.00|0.46|0.00|0.46|0.00|0.31|0.00|0.40|0.00|0.00|0.09|0.00|0.21|0.00|0.26|0.00|0.21|0.00|0.09|0.00|0.20|0.24|0.00|0.00|0.12|0.08|0.04|0.08|0.04|0.00|0.12|0.24|0.00|0.00|0.20||00007B-|1|2.000|";
+console.debug("begin");
+wpbd=wpbd_singleton();
+console.debug("begin");
+bridge={};
+wpbd_bridge_parseByte(bridge,input);
+console.debug("finished!");
+console.debug(wpbd_bridge_toString(bridge));
