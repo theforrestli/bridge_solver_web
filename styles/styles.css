@@ -1,15 +1,16 @@
-body
+body.*
 {
-  margin:0px;
+  margin: 0px;
   background-color: #000;
-  color:#FFF;
+  color: #FFF;
 }
-a{
-  text-decoration:none;
-  color:inherit;
-  display: block;
-  text-align:inherit;
+.inline{
+    float:left;
 }
+a,form{
+  margin: 0px;
+}
+/*
 table.testc1 td{
   font-family:monospace;
   font-weight:bold;
@@ -27,6 +28,7 @@ test{
   background-image:url('http://www.google.com/trends/resources/2327917647-google-icon.png');
 
 }
+*/
 
 
 
