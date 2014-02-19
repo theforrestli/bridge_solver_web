@@ -203,3 +203,43 @@ function wpbd_singleton(){
     f.defaultBridgeString="2014205320000011 19  0  0 16  0 32  0 48  0 64  0 80  0  8 16 24 16 40 17 56 16 72 16 1 71118 7 81116 8 91118 91011181011111611 61118 6 50112 5 420 5 4 320 5 3 220 5 2 10112 7 220 5 2 81116 8 30112 3 90112 9 40112 410011210 51116 51120 50.40|0.00|0.31|0.00|0.46|0.00|0.46|0.00|0.31|0.00|0.40|0.00|0.00|0.09|0.00|0.21|0.00|0.26|0.00|0.21|0.00|0.09|0.00|0.20|0.24|0.00|0.00|0.12|0.08|0.04|0.08|0.04|0.00|0.12|0.24|0.00|0.00|0.20||00007B-|1|2.000|";
     return f;
 }
+function wpbd_material_get(index){
+    return wpbd.materials[index];
+}
+function wpbd_shape_get(sectionIndex,sizeIndex){
+    return wpbd.shapes[sectionIndex][sizeIndex];
+}
+function wpbd_shape_new(section,sizeIndex,name,width,area,moment,inverseRadiusOfGyration,thickness){
+    return {
+        "section":section,
+        "sizeIndex":sizeIndex,
+        "name":name,
+        "width":width,
+        "area":area,
+        "moment":moment,
+        "inverseRadiusOfGyration":Math.sqrt(area/moment),
+        "thickness":thickness};
+}
+function wpbd_compressiveStrength(material,shape,length){
+    var Fy = material.Fy;
+    var area = shape.area;
+    var E = material.E;
+    var moment = shape.moment;
+    var lambda = length * length * Fy * area / (9.8696044 * E * moment);
+    return (lambda <= 2.25) ? 
+        wpbd.compressionResistanceFactor * Math.pow(0.66, lambda) * Fy * area : 
+        wpbd.compressionResistanceFactor * 0.88 * Fy * area / lambda;
+}
+function wpbd_tensileStrength(material, shape) {
+    return wpbd.tensionResistanceFactor * material.Fy * shape.area;
+}
+function wpbd_material_new(index,name,shortName,E,Fy,density,cost){
+    return {
+        "index":index,
+        "name":name,
+        "shortName":shortName,
+        "E":E,
+        "Fy":Fy,
+        "density":density,
+        "cost":cost};
+}

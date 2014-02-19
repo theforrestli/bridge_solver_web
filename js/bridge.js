@@ -90,6 +90,72 @@ toString:function (){
   });
   f+=bridge.designedBy+"|"+bridge.projectId+"|"+bridge.iterationNumber+"|"+bridge.labelPosition.toFixed(3)+"|";
   return f;
+},
+
+tryAddJoint:function(p){
+    if(this.joints.some(function(j){
+        return j.x==p.x&&j.y==p.y;
+    })){
+        return wpbd.ADD_JOINT_JOINT_EXISTS;
+    }
+    if(this.joints>=wpbd.maxJointCount){
+        return wpbd.ADD_JOINT_AT_MAX;
+    }
+    wpbdg.manager.doOrder(wpbdg_order_new([wpbd_joint_new(this.joints.length,p.x,p.y,false)],[],[],[],[],[]));
+    wpbdg.update_bridge();
+    return wpbd.ADD_JOINT_OK;
+},
+
+tryAddMember:function(jointA,jointB,materialIndex,sectionIndex,sizeIndex){
+    if (jointA == jointB) {
+        return wpbd.ADD_MEMBER_SAME_JOINT;
+    }
+    if (getMember(jointA, jointB) != null) {
+        return wpbd.ADD_MEMBER_MEMBER_EXISTS;
+    }
+    if(this.members.some(function(m){
+        return (m.jointA==jointA&&m.jointB==jointB)||(m.jointA==jointB&&m.jointB==jointA);
+    })){
+        return wpbd.ADD_MEMBER_MEMBER_EXISTS;
+    }
+    // Reject members that intersect a pier.  This works in concert with DraftingCoordinates, which prevents 
+    // joints from ever occurring on top of a pier.
+    if (this.condition.hiPier) {
+        var pierLocation = this.condition.prescribedJoints[condition.pierJointIndex];
+        var eps = 1e-6;
+        if ((a.x < pierLocation.x && pierLocation.x < b.x) ||
+            (b.x < pierLocation.x && pierLocation.x < a.x)) {
+            var dx = b.x - a.x;
+            if (Math.abs(dx) > eps) {
+                var y = (pierLocation.x - jointA.x) * (jointB.y - jointA.y) / dx + jointA.y;
+                if (y < pierLocation.y - eps) {
+                    return wpbd.ADD_MEMBER_CROSSES_PIER;
+                }
+            }
+        }
+    }
+    if (this.members.length >= wpbd.maxMemberCount) {
+        return wpbd.ADD_MEMBER_AT_MAX;
+    }
+    var member = wpbd_member_new(this.members.length,jointA,jointB,wpbd_material_get(materialIndex),wpbd_shape_get(sectionIndex,sizeIndex));
+    wpbdg.manager.doOrder(wpbd_order_new([],[],[],[member],[],[]));
+    wpbdg.update_bridge();
+    return ADD_MEMBER_OK;
+},
+moveJoint:function(joints,dp){
+    /*
+    if(dp.x==0&&dp.y==0){
+        return wpbd.MOVE_JOINT_ALREADY_THERE;
+    }
+    Joint existing = findJointAt(ptWorld);
+    if (existing != null && existing != joint) {
+        return MOVE_JOINT_JOINT_EXISTS;
+    }
+    if (new MoveJointCommand(this, joint, ptWorld).execute(undoManager) == EditableBridgeModel.ADD_MEMBER_AT_MAX) {
+        return MOVE_JOINT_MEMBER_AT_MAX;
+    }
+    return MOVE_JOINT_OK;
+    */
 }
 
 };//end of prototype
@@ -395,8 +461,8 @@ function wpbd_condition_getCodeError(code){
     
     var pierPanelIndex = code[8] - 1;
     var pier = pierPanelIndex >= 0;
-    
     var hiPier = code[9] > 0;
+    
     if ((hiPier) && (!pier)) {
       return 90;
     }
@@ -439,56 +505,6 @@ function wpbd_condition_getCodeError(code){
     }
     return 0;
 }
-function wpbd_material_new(index,name,shortName,E,Fy,density,cost){
-    return {
-        "index":index,
-        "name":name,
-        "shortName":shortName,
-        "E":E,
-        "Fy":Fy,
-        "density":density,
-        "cost":cost};
-}
-function wpbd_material_get(index){
-    return wpbd.materials[index];
-}
-function wpbd_shape_get(sectionIndex,sizeIndex){
-    return wpbd.shapes[sectionIndex][sizeIndex];
-}
-function wpbd_shape_new(section,sizeIndex,name,width,area,moment,inverseRadiusOfGyration,thickness){
-    return {
-        "section":section,
-        "sizeIndex":sizeIndex,
-        "name":name,
-        "width":width,
-        "area":area,
-        "moment":moment,
-        "inverseRadiusOfGyration":Math.sqrt(area/moment),
-        "thickness":thickness};
-}
-function wpbd_compressiveStrength(material,shape,length){
-    var Fy = material.Fy;
-    var area = shape.area;
-    var E = material.E;
-    var moment = shape.moment;
-    var lambda = length * length * Fy * area / (9.8696044 * E * moment);
-    return (lambda <= 2.25) ? 
-        wpbd.compressionResistanceFactor * Math.pow(0.66, lambda) * Fy * area : 
-        wpbd.compressionResistanceFactor * 0.88 * Fy * area / lambda;
-}
-function wpbd_tensileStrength(material, shape) {
-    return wpbd.tensionResistanceFactor * material.Fy * shape.area;
-}
 
 
-function wpbd_bridge_addJoint(p){
-    if(this.joints.some(function(j){
-        return j.x==p.x&&j.y==p.y;
-    })){
-        return wpbd.ADD_JOINT_JOINT_EXISTS;
-    }
-    if(this.joints>=wpbd.maxJointCount){
-        return wpbd.ADD_JOINT_AT_MAX;
-    }
-}
 

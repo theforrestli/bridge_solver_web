@@ -1,3 +1,10 @@
+--- TASK ---
+transform P
+draw bridge
+edit bridge
+draw effect
+
+
 --- original ---
 menus:
 (new load save print) (edit analyze) (select_all select_none) (undo redo) (iteration last next all) (cost detail) (status report)
@@ -11,14 +18,16 @@ background:
 foreground:
 deck joint member ...
 ...
+--- end ---
 
-redraw level:
+--- redraw level ---
 condition
 bridge
 select info
 hover 
+--- end ---
 
-events:
+--- event ---
  select:
   singletap:
    none: nothing
@@ -30,6 +39,8 @@ events:
    move selected
   hold:
    select box
+
+--- end ---
   
   
 
