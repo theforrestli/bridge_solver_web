@@ -2,7 +2,7 @@
 function wpbd_manager_new(bridge){
     return {
         "bridge":bridge,
-        "ptr":{"next":null,"prev":null,"order":null}
+        "ptr":{"next":null,"prev":null,"order":null}};
 }
 function wpbd_manager_add(list,es){
     es.foreach(function(e){
@@ -12,7 +12,7 @@ function wpbd_manager_add(list,es){
             list.push(list[e.index]);
             list[e.index]=e;
         }
-    }
+    });
 }
 function wpbd_manager_exchange(list,es){
     es.foreach(function(e){
@@ -21,7 +21,7 @@ function wpbd_manager_exchange(list,es){
         jQuery.extend(tmp,e);
         jQuery.extend(e,el);
         jQuery.extend(el,tmp);
-    }
+    });
 }
 function wpbd_manager_remove(list,es){
     es=es.slice(0).reverse();

@@ -1,5 +1,6 @@
 /*
  * joints, members, condition will not change reference 
+ * condition should only be modified by get_from_code method
  */
 function wpbd_bridge_new(){
     var f={};
@@ -143,6 +144,7 @@ tryAddMember:function(jointA,jointB,materialIndex,sectionIndex,sizeIndex){
     return ADD_MEMBER_OK;
 },
 moveJoint:function(joints,dp){
+    //TODO
     /*
     if(dp.x==0&&dp.y==0){
         return wpbd.MOVE_JOINT_ALREADY_THERE;
@@ -156,6 +158,38 @@ moveJoint:function(joints,dp){
     }
     return MOVE_JOINT_OK;
     */
+},
+deselectAll:function (){
+    this.joints.forEach(function(e){
+        e.selected=false;
+    });
+    this.members.forEach(function(e){
+        e.selected=false;
+    });
+},
+getNearestEntity:function(p,r){
+    r*=r;
+    var f=null;
+    for(var i=this.condition.nPrescribedJoints;i<this.joints.length;i++){
+        var j=this.joints[i];
+        var x=p.x-j.x;
+        var y=p.y-j.y;
+        var d=x*x+y*y;
+        if(x*x+y*y<r){
+            f=j;
+            r=d;
+        }
+    }
+    this.members.forEach(function(m){
+        var x=(m.jointB.x+m.jointA.x)/2-p.x;
+        var y=(m.jointB.y+m.jointA.y)/2-p.y;
+        var d=x*x+y*y;
+        if(x*x+y*y<r){
+            f=m;
+            r=d;
+        }
+    });
+    return f;
 }
 
 };//end of prototype
@@ -431,6 +465,30 @@ function wpbd_condition_get_from_code(f,codeLong){
     pier? [0, f.nPanels, f.pierJointIndex]:
     [0, f.nPanels];
     return f;
+}
+function wpbd_condition_getBounding(condition){
+    var padding=2;
+    var f={};
+    var tmp=condition.leftAnchorageJointIndex;
+    if(tmp!==-1){
+        f.left=condition.nPrescribedJoints[tmp].x-padding;
+    }else{
+        f.left=-padding;
+    }
+    tmp=condition.rightAnchorageJointIndex;
+    if(tmp!==-1){
+        f.right=condition.nPrescribedJoints[tmp].x+padding;
+    }else{
+        f.right=condition.spanLength+padding;
+    }
+    f.top=condition.overClearance+padding;
+    f.bottom=condition.underClearance-padding;
+    f.width=f.right-f.left;
+    f.height=f.top-f.bottom;
+    return f;
+
+
+
 }
 function wpbd_condition_getCodeError(code){
     if (code === undefined) {

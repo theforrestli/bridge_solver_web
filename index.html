@@ -82,10 +82,14 @@
             </form>
 
         </div>
+    <canvas id="wpbd_cv1" width=400 height=400 style="display:block;width:400;height:400px;" ></canvas>
     </div>
   
     <dir id="dir_test1"></dir>
     <script src="js/singleton.js"></script>
+    <script src="js/singleton2.js"></script>
+    <script src="js/gui.js"></script>
+    <script src="js/history.js"></script>
     <script src="js/bridge.js"></script>
     <script src="js/analysis.js"></script>
     <script>
@@ -98,6 +102,8 @@
     bridge.parseByte(input);
     console.debug("finished!");
     console.debug(bridge.toString());
+    wpbdg=wpbdg_singleton();
+
     </script>
     <script>
     </script>
