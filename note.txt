@@ -12,6 +12,27 @@ foreground:
 deck joint member ...
 ...
 
+redraw level:
+condition
+bridge
+select info
+hover 
+
+events:
+ select:
+  singletap:
+   none: nothing
+   element: toggle select
+  doubletap:
+   none: deselect all
+   element: select this only
+  drag: (specify drag_min_distance)
+   move selected
+  hold:
+   select box
+  
+  
+
 
 
 

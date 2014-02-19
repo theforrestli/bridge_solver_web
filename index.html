@@ -3,6 +3,7 @@
 <head>
     <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
     <script src="http://code.jquery.com/mobile/1.4.1/jquery.mobile-1.4.1.min.js"></script>
+    <script src="js/hammer.min.js"></script>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <link href="http://code.jquery.com/mobile/1.4.1/jquery.mobile-1.4.1.min.css" media="screen" rel="stylesheet" type="text/css" />
     <link href="styles/styles.css" media="screen" rel="stylesheet" type="text/css" />
@@ -69,7 +70,6 @@
                     </select>
                 </fieldset>
             </form>
-
             <form class="ui-btn-inline" style="margin:0px" > 
                 <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" >
                     <input type="radio" name="wpbd_view" id="wpbd_view-1" value="on" checked="checked">
@@ -94,10 +94,10 @@
     console.debug("begin");
     wpbd=wpbd_singleton();
     console.debug("begin");
-    bridge={};
-    wpbd_bridge_parseByte(bridge,input);
+    bridge=wpbd_bridge_new();
+    bridge.parseByte(input);
     console.debug("finished!");
-    console.debug(wpbd_bridge_toString(bridge));
+    console.debug(bridge.toString());
     </script>
     <script>
     </script>

@@ -1,16 +1,30 @@
-
-function wpbd_bridge_parseByte(f,s){
+/*
+ * joints, members, condition will not change reference 
+ */
+function wpbd_bridge_new(){
+    var f={};
+    f.listener=[];
+    f.joints=[];
+    f.members=[];
+    f.condition={};
+    jQuery.extend(f,wpbd_bridge_prototype);
+    f.parseByte(wpbd.defaultBridgeString);
+    return f;
+}
+wpbd_bridge_prototype={
+"parseByte":function (s){
+    var f=this;
     //throws IOException
     var buf={"readBuf":s,"readPtr":0};
     //TODO
-    f.joints=[];
-    f.members=[];
+    f.joints.splice(0,Infinity);
+    f.members.splice(0,Infinity);
     if (wpbd_scanUnsigned(4, "bridge designer version",buf) != 2014) {
         throw ("bridge design file version is not 2014");
     }
     var scenarioCode = wpbd_scanUnsigned(10, "scenario code",buf);
     //TODO
-    f.condition = wpbd_condition_get_from_code(scenarioCode);
+    wpbd_condition_get_from_code(f.condition,scenarioCode);
     if (f.condition== null) {
         throw ("invalid scenario " + scenarioCode);
     }
@@ -50,8 +64,9 @@ function wpbd_bridge_parseByte(f,s){
     f.projectId = wpbd_scanToDelimiter("project ID",buf);
     f.iterationNumber = parseInt(wpbd_scanToDelimiter("iteration",buf));
     f.labelPosition = parseFloat(wpbd_scanToDelimiter("label position",buf));
-}
-function wpbd_bridge_toString(bridge){
+},
+toString:function (){
+  var bridge=this;
   var f="";
   f+="2014";
   //TODO
@@ -76,6 +91,8 @@ function wpbd_bridge_toString(bridge){
   f+=bridge.designedBy+"|"+bridge.projectId+"|"+bridge.iterationNumber+"|"+bridge.labelPosition.toFixed(3)+"|";
   return f;
 }
+
+};//end of prototype
     
 function wpbd_scanUnsigned(width,what,buf){
     //throws IOException
@@ -153,16 +170,15 @@ function wpbd_scanToDelimiter(what,buf){
     return f;
 }
 function wpbd_joint_new(i,x,y,fixed){
-    return {"index":i,"x":x,"y":y,"fixed":fixed};
+    return {"index":i,"x":x,"y":y,"fixed":fixed,"selected":false};
 }
 function wpbd_member_new(i,j1,j2,material,shape){
-    return {"index":i,"jointA":j1,"jointB":j2,"material":material,"shape":shape};
+    return {"index":i,"jointA":j1,"jointB":j2,"material":material,"shape":shape,"selected":false};
 }
 /**
  * DesignCondition
  */
-function wpbd_condition_get_from_code(codeLong){
-    var f={};
+function wpbd_condition_get_from_code(f,codeLong){
     f.tag=wpbd.conditions[codeLong];
     if(f.tag===undefined){
         f.tag=wpbd.fromKeyCodeTag;
@@ -434,7 +450,7 @@ function wpbd_material_new(index,name,shortName,E,Fy,density,cost){
         "cost":cost};
 }
 function wpbd_material_get(index){
-    return wpbd.materials
+    return wpbd.materials[index];
 }
 function wpbd_shape_get(sectionIndex,sizeIndex){
     return wpbd.shapes[sectionIndex][sizeIndex];
@@ -451,16 +467,28 @@ function wpbd_shape_new(section,sizeIndex,name,width,area,moment,inverseRadiusOf
         "thickness":thickness};
 }
 function wpbd_compressiveStrength(material,shape,length){
-            var Fy = material.Fy;
-            var area = shape.area;
-            var E = material.E;
-            var moment = shape.moment;
-            var lambda = length * length * Fy * area / (9.8696044 * E * moment);
-            return (lambda <= 2.25) ? 
-                wpbd.compressionResistanceFactor * Math.pow(0.66, lambda) * Fy * area : 
-                wpbd.compressionResistanceFactor * 0.88 * Fy * area / lambda;
-    }
+    var Fy = material.Fy;
+    var area = shape.area;
+    var E = material.E;
+    var moment = shape.moment;
+    var lambda = length * length * Fy * area / (9.8696044 * E * moment);
+    return (lambda <= 2.25) ? 
+        wpbd.compressionResistanceFactor * Math.pow(0.66, lambda) * Fy * area : 
+        wpbd.compressionResistanceFactor * 0.88 * Fy * area / lambda;
+}
 function wpbd_tensileStrength(material, shape) {
-        return wpbd.tensionResistanceFactor * material.Fy * shape.area;
+    return wpbd.tensionResistanceFactor * material.Fy * shape.area;
+}
+
+
+function wpbd_bridge_addJoint(p){
+    if(this.joints.some(function(j){
+        return j.x==p.x&&j.y==p.y;
+    })){
+        return wpbd.ADD_JOINT_JOINT_EXISTS;
     }
+    if(this.joints>=wpbd.maxJointCount){
+        return wpbd.ADD_JOINT_AT_MAX;
+    }
+}
 
