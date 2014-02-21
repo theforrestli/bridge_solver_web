@@ -149,7 +149,7 @@ tryAddMember:function(materialIndex,sectionIndex,sizeIndex){
     if(this.checkMemberWithPier(member)){
         return null;
     }
-    return (wpbd_order_new([],[],[],[member],[],[]);
+    return (wpbd_order_new([],[],[],[member],[],[]));
 },
 tryMoveJoint:function(dp){
     if(dp.x==0&&dp.y==0){
@@ -164,20 +164,20 @@ tryMoveJoint:function(dp){
         return this.joints.some(function(j2){
             return j1.x==j2.x&&j1.y==j2.y&&j1!=j2;
         });
-    }){
+    })){
         return null;
     }
     var condition=this.condition;
     if(joints.some(function(j1){
         //TODO check with condition
         return !condition.isLegalPosition(j1.x+dp.x,j1.y+dp.y);
-    }){
+    })){
         return null;
     }
     var bridge=this;
     //TODO more efficent
     if(this.members.some(function(m){
-        return bridge.checkMemberWithPier(m))
+        return bridge.checkMemberWithPier(m);
     })){
         return null;
     }
@@ -495,6 +495,11 @@ function wpbd_condition_get_from_code(f,codeLong){
     arch? [0, f.nPanels, f.archJointIndex, f.archJointIndex+1]:
     pier? [0, f.nPanels, f.pierJointIndex]:
     [0, f.nPanels];
+
+    // custom attribute
+    f.bounding=wpbd_condition_getBounding(f);
+
+
     return f;
 }
 function wpbd_condition_getBounding(condition){
@@ -516,10 +521,7 @@ function wpbd_condition_getBounding(condition){
     f.bottom=condition.underClearance-padding;
     f.width=f.right-f.left;
     f.height=f.top-f.bottom;
-    
-
-
-
+    return f;
 }
 function wpbd_condition_getCodeError(code){
     if (code === undefined) {
@@ -600,6 +602,7 @@ wpbd_condition_prototype={
 //TODO refactor
 isLegalPosition:function(p){
     return true;
+    /*
     var x=p.x;
     var y=p.y;
     
@@ -653,6 +656,7 @@ isLegalPosition:function(p){
         dstGrid.x -= snapMultiple;
         gridToWorld(dst, dstGrid);
     }
+    */
 }
 
 };

@@ -28,7 +28,7 @@ wpbdg_prototype={
 update_transform:function (){
     var condition=this.bridge.condition;
     var rect1=wpbd_condition_getBounding(condition);
-    var rect2={x:0,y:0,width:this.cv1.width,height:this.cv1.height};
+    var rect2={"x":0,"y":0,"width":this.cv1.width,"height":this.cv1.height};
     /*
     x1,y1,w1,w2
     x2,y2,w2,h2
