@@ -17,14 +17,14 @@ wpbd_bridge_prototype={
     var f=this;
     //throws IOException
     var buf={"readBuf":s,"readPtr":0};
-    //TODO
+
     f.joints.splice(0,Infinity);
     f.members.splice(0,Infinity);
     if (wpbd_scanUnsigned(4, "bridge designer version",buf) != 2014) {
         throw ("bridge design file version is not 2014");
     }
     var scenarioCode = wpbd_scanUnsigned(10, "scenario code",buf);
-    //TODO
+
     wpbd_condition_get_from_code(f.condition,scenarioCode);
     if (f.condition== null) {
         throw ("invalid scenario " + scenarioCode);
@@ -34,7 +34,7 @@ wpbd_bridge_prototype={
     for (var n = 1; n <= n_joints; n++){
         var x = wpbd_scanInt(3, "joint " + n + " x-coordinate",buf)/4.;
         var y = wpbd_scanInt(3, "joint " + n + " y-coordinate",buf)/4.;
-        //TODO getNPrescribedJoints
+
         if (n <= f.condition.prescribedJoints.length){
             var joint = f.condition.prescribedJoints[n-1];
             if ((x != joint.x) || (y != joint.y)) {
@@ -52,7 +52,7 @@ wpbd_bridge_prototype={
         var materialIndex = wpbd_scanUnsigned(1, "material index of member " + n,buf);
         var sectionIndex = wpbd_scanUnsigned(1, "section index of member " + n,buf);
         var sizeIndex = wpbd_scanUnsigned(2, "size index of member " + n,buf);
-        //TODO
+
         f.members.push(wpbd_member_new(n-1, f.joints[jointANumber - 1], f.joints[jointBNumber - 1], wpbd.materials[materialIndex],wpbd.shapes[sectionIndex][sizeIndex]));
     }
     console.debug("parse test");
@@ -70,7 +70,7 @@ toString:function (){
   var bridge=this;
   var f="";
   f+="2014";
-  //TODO
+
   f+=wpbd_writeNumber(10,bridge.condition.codeLong);
   f+=wpbd_writeNumber(2,bridge.joints.length);
   f+=wpbd_writeNumber(3,bridge.members.length);
@@ -81,7 +81,7 @@ toString:function (){
   bridge.members.forEach(function(member){
     f+=wpbd_writeNumber(2,member.jointA.index+1);
     f+=wpbd_writeNumber(2,member.jointB.index+1);
-  //TODO
+
     f+=wpbd_writeNumber(1,member.material.index);
     f+=wpbd_writeNumber(1,member.shape.section.index);
     f+=wpbd_writeNumber(2,member.shape.sizeIndex);
@@ -94,70 +94,101 @@ toString:function (){
 },
 
 tryAddJoint:function(p){
+    if(p==null){
+        return null;
+    }
     if(this.joints.some(function(j){
         return j.x==p.x&&j.y==p.y;
     })){
-        return wpbd.ADD_JOINT_JOINT_EXISTS;
+        return null;
     }
     if(this.joints>=wpbd.maxJointCount){
-        return wpbd.ADD_JOINT_AT_MAX;
+        return null;
     }
-    wpbdg.manager.doOrder(wpbdg_order_new([wpbd_joint_new(this.joints.length,p.x,p.y,false)],[],[],[],[],[]));
-    wpbdg.update_bridge();
-    return wpbd.ADD_JOINT_OK;
+    this.deselectAll();
+    return wpbd_order_new([wpbd_joint_new(this.joints.length,p.x,p.y,false)],[],[],[],[],[]);
 },
-
-tryAddMember:function(jointA,jointB,materialIndex,sectionIndex,sizeIndex){
-    if (jointA == jointB) {
-        return wpbd.ADD_MEMBER_SAME_JOINT;
-    }
-    if (getMember(jointA, jointB) != null) {
-        return wpbd.ADD_MEMBER_MEMBER_EXISTS;
-    }
-    if(this.members.some(function(m){
-        return (m.jointA==jointA&&m.jointB==jointB)||(m.jointA==jointB&&m.jointB==jointA);
-    })){
-        return wpbd.ADD_MEMBER_MEMBER_EXISTS;
-    }
-    // Reject members that intersect a pier.  This works in concert with DraftingCoordinates, which prevents 
-    // joints from ever occurring on top of a pier.
+checkMemberWithPier:function(m){
     if (this.condition.hiPier) {
         var pierLocation = this.condition.prescribedJoints[condition.pierJointIndex];
         var eps = 1e-6;
-        if ((a.x < pierLocation.x && pierLocation.x < b.x) ||
-            (b.x < pierLocation.x && pierLocation.x < a.x)) {
-            var dx = b.x - a.x;
+        if ((jointA.x < pierLocation.x && pierLocation.x < jointB.x) ||
+            (jointB.x < pierLocation.x && pierLocation.x < jointA.x)) {
+            var dx = jointB.x - jointA.x;
             if (Math.abs(dx) > eps) {
                 var y = (pierLocation.x - jointA.x) * (jointB.y - jointA.y) / dx + jointA.y;
                 if (y < pierLocation.y - eps) {
-                    return wpbd.ADD_MEMBER_CROSSES_PIER;
+                    return true;
                 }
             }
         }
     }
-    if (this.members.length >= wpbd.maxMemberCount) {
-        return wpbd.ADD_MEMBER_AT_MAX;
-    }
-    var member = wpbd_member_new(this.members.length,jointA,jointB,wpbd_material_get(materialIndex),wpbd_shape_get(sectionIndex,sizeIndex));
-    wpbdg.manager.doOrder(wpbd_order_new([],[],[],[member],[],[]));
-    wpbdg.update_bridge();
-    return ADD_MEMBER_OK;
+    return false;
+
 },
-moveJoint:function(joints,dp){
-    //TODO
-    /*
+
+tryAddMember:function(materialIndex,sectionIndex,sizeIndex){
+    var joints=this.joints.filter(function(j){return j.selected;});
+    this.deselectAll();
+    if(joints.length!=2){
+        return null;
+    }
+    var jointA=joints[0];
+    var jointB=joints[1];
+    if(this.members.some(function(m){
+        return (m.jointA==jointA&&m.jointB==jointB)||(m.jointA==jointB&&m.jointB==jointA);
+    })){
+        return null;
+    }
+    if (this.members.length >= wpbd.maxMemberCount) {
+        return null;
+    }
+    // Reject members that intersect a pier.  This works in concert with DraftingCoordinates, which prevents 
+    // joints from ever occurring on top of a pier.
+    var member = wpbd_member_new(this.members.length,jointA,jointB,wpbd_material_get(materialIndex),wpbd_shape_get(sectionIndex,sizeIndex));
+    if(this.checkMemberWithPier(member)){
+        return null;
+    }
+    return (wpbd_order_new([],[],[],[member],[],[]);
+},
+tryMoveJoint:function(dp){
     if(dp.x==0&&dp.y==0){
-        return wpbd.MOVE_JOINT_ALREADY_THERE;
+        return null;
     }
-    Joint existing = findJointAt(ptWorld);
-    if (existing != null && existing != joint) {
-        return MOVE_JOINT_JOINT_EXISTS;
+    var joints=this.joints.filter(function(j){return j.selected;});
+    if(joints.length==0){
+        //TODO smart select member?
+        return null;
     }
-    if (new MoveJointCommand(this, joint, ptWorld).execute(undoManager) == EditableBridgeModel.ADD_MEMBER_AT_MAX) {
-        return MOVE_JOINT_MEMBER_AT_MAX;
+    if(joints.some(function(j1){
+        return this.joints.some(function(j2){
+            return j1.x==j2.x&&j1.y==j2.y&&j1!=j2;
+        });
+    }){
+        return null;
     }
-    return MOVE_JOINT_OK;
-    */
+    var condition=this.condition;
+    if(joints.some(function(j1){
+        //TODO check with condition
+        return !condition.isLegalPosition(j1.x+dp.x,j1.y+dp.y);
+    }){
+        return null;
+    }
+    var bridge=this;
+    //TODO more efficent
+    if(this.members.some(function(m){
+        return bridge.checkMemberWithPier(m))
+    })){
+        return null;
+    }
+    joints=joints.map(function(j){
+        var j2={};
+        jQuery.extend(j2,j);
+        j2.x+=dp.x;
+        j2.y+=dp.y;
+        return j2;
+    });
+    return wpbd_order_new([],[],joints,[],[],[]);
 },
 deselectAll:function (){
     this.joints.forEach(function(e){
@@ -485,7 +516,7 @@ function wpbd_condition_getBounding(condition){
     f.bottom=condition.underClearance-padding;
     f.width=f.right-f.left;
     f.height=f.top-f.bottom;
-    return f;
+    
 
 
 
@@ -563,6 +594,68 @@ function wpbd_condition_getCodeError(code){
     }
     return 0;
 }
+
+wpbd_condition_prototype={
+
+//TODO refactor
+isLegalPosition:function(p){
+    return true;
+    var x=p.x;
+    var y=p.y;
+    
+    var yTop=this.overClearance;
+    var yBottom=-this.underClearance;
+    var xLeft=0;
+    var xRight=this.spanLength;
+    
+    // Be safe about testing which world zone we're in.
+    final double tol = 0.5 * fineGridSize;
+    
+
+    // Adjust for abutments and slope. No worries for arches.
+    if(this.condition.arch&&p.y<=0.125){
+        xLeft += wpbd.abutmentClearance;
+        xRight -= wpbd.abutmentClearance;
+        yGradeLevel = wpbd.gapDepth - this.deckElevation + wpbd.wearSurfaceHeight;
+        var dy = wpbd.gapDepth - this.deckElevation + wpbd.wearSurfaceHeight - y;
+        double xLeftSlope = bridgeView.getLeftBankX() + 0.5 * dy - 0.5;            
+        if (xLeftSlope > xLeft) {
+            xLeft = xLeftSlope;
+        }
+        double xRightSlope = bridgeView.getRightBankX() - 0.5 * dy + 0.5;
+        if (xRightSlope < xRight) {
+            xRight = xRightSlope;
+        }
+    }
+    
+    // Move off high pier.
+    if (bridgeView.getConditions().isHiPier()) {
+        Affine.Point pierLocation = bridgeView.getPierLocation();
+        if (y <= pierLocation.y + tol) {
+            if (pierLocation.x - pierClearance <= x && x <= pierLocation.x + pierClearance) {
+                x = (x < pierLocation.x) ? pierLocation.x - pierClearance : pierLocation.x + pierClearance;
+            }
+        }
+    }
+    dst.x = x < xLeft ? xLeft : x > xRight ? xRight : x;
+    dst.y = y < yBottom ? yBottom : y > yTop ? yTop : y;
+    
+    // Snap
+    worldToGrid(dstGrid, dst);
+    gridToWorld(dst, dstGrid);
+    
+    // If snapping took us out of bounds, move one grid and reconvert.
+    if (dst.x < xLeft) {
+        dstGrid.x += snapMultiple;
+        gridToWorld(dst, dstGrid);
+    }
+    else if (dst.x > xRight) {
+        dstGrid.x -= snapMultiple;
+        gridToWorld(dst, dstGrid);
+    }
+}
+
+};
 
 
 
