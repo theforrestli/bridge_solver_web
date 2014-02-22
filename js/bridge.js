@@ -212,6 +212,13 @@ tryMove:function(dp){
     });
     return wpbd_order_new([],[],joints,[],[],[]);
 },
+tryChangeType:function(materialIndex,sectionIndex,sizeIndex){
+    var member = wpbd_member_new(this.members.length,jointA,jointB,wpbd_material_get(materialIndex),wpbd_shape_get(sectionIndex,sizeIndex));
+    var members=this.members.filter(function(m){return m.selected;}).map(function(m){
+        return wpbd_member_new(m.index,m.jointA,m.jointB,wpbd_material_get(materialIndex),wpbd_shape_get(sectionIndex,sizeIndex));
+    });
+    return wpbd_order_new([],[],[],members,[],[]);
+},
 deselectAll:function (){
     this.joints.forEach(function(e){
         e.selected=false;

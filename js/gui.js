@@ -53,6 +53,7 @@ function wpbdg_hold(e){
     wpbdg.update();
 }
 function wpbdg_drag(e){
+    console.debug(e);
     wpbdg.drag=true;
     wpbdg.updateNewP(e);
     wpbdg.updateDeltaP(e);

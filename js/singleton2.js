@@ -36,7 +36,7 @@ function wpbdg_singleton(){
     f.flag=0;
     
     //listeners
-    var tmp=Hammer(f.cv1);
+    var tmp=Hammer(f.cv1,{prevent_default:true});
     tmp.on("tap",wpbdg_tap);
     tmp.on("doubletap",wpbdg_doubletap);
     tmp.on("release",wpbdg_release);
@@ -162,6 +162,9 @@ updateBridge:function(){
     });
 },
 updateSelect:function(){
+    ///////////////
+    // gui
+    ////////////////
     this.cv13.width=this.cv1.width;
     this.cv13.height=this.cv1.height;
     var ctx=this.cv13.getContext("2d");
@@ -227,7 +230,42 @@ updateSelect:function(){
             }
         });
     }
-    
+    ///////////////
+    // others
+    ////////////////
+    var mt=-2;
+    var cs=-2;
+    var wd=-2;
+    this.bridge.members.forEach(function(m){
+        if(!m.selected){
+            return;
+        }
+        if(mt==-2){
+            mt=m.material.index;
+            cs=m.shape.section.index;
+            wd=m.shape.sizeIndex;
+            return;
+        }
+        if(mt!=m.material.index){
+            mt=-1;
+        }
+        if(cs!=m.shape.section.index){
+            cs=-1;
+        }
+        if(wd!=m.shape.sizeIndex){
+            wd=-1;
+        }
+    });
+    //nothing selected
+    if(mt==-2){
+        return;
+    }
+    this.mt_select.val(mt);
+    this.cs_select.val(cs);
+    this.wd_select.val(wd);
+    this.mt_select.selectmenu("refresh");
+    this.cs_select.selectmenu("refresh");
+    this.wd_select.selectmenu("refresh");
 },
 debug:function(){
     this.cv12.width=this.cv1.width;
