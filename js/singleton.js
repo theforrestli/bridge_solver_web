@@ -247,3 +247,6 @@ function wpbd_material_new(index,name,shortName,E,Fy,density,cost){
         "density":density,
         "cost":cost};
 }
+function wpbd_round(a,n){
+    return Math.round(a/n)*n;
+}

@@ -68,6 +68,9 @@ redoable:function(){
     return this.ptr.order!=null;
 },
 doOrder:function(order){
+    if(order==null){
+        return;
+    }
     this.ptr.order=order;
     this.ptr.next={"next":null,"prev":this.ptr,"order":null};
     this.redo();

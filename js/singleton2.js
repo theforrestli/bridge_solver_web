@@ -2,9 +2,12 @@
 function wpbdg_singleton(){
     var f={};
     jQuery.extend(f,wpbdg_prototype);
+
+    f.gridSize=0.25;
+
     f.hold=false;
     f.drag=false;
-    f.oldP={"x":0,"y":0};
+    f.deltaP={"x":0,"y":0};
     f.newP={"x":0,"y":0};
     f.bridge=wpbd_bridge_new();
     f.manager=wpbd_manager_new(f.bridge);
@@ -62,16 +65,26 @@ updateNewP:function (e){
     this.newP.x= this.transform.r*(p.x+this.transform.dx);
     this.newP.y=-this.transform.r*(p.y+this.transform.dy);
 },
+updateDeltaP:function (e){
+    var rect=this.cv1.getBoundingClientRect();
+    this.deltaP.x=e.gesture.deltaX/rect.width*this.cv1.width*this.transform.r;
+    this.deltaP.y=-e.gesture.deltaY/rect.height*this.cv1.height*this.transform.r;
+},
 update_condition:function(){
     this.update_transform();
     this.cv11.width=this.cv1.width;
     this.cv11.height=this.cv1.height;
+    var ctx=this.cv11.getContext("2d");
+    ctx.fillStyle="FFF";
+    ctx.fillRect(0,0,this.cv1.width,this.cv1.height);
+    
 },
 update_bridge:function(){
     this.cv12.width=this.cv1.width;
     this.cv12.height=this.cv1.height;
     var ctx=this.cv12.getContext("2d");
-    var bridge=this.bridge;
+    var joints=this.bridge.joints;
+    var members=this.bridge.members;
     
     //paint background
     var p;
@@ -82,53 +95,107 @@ update_bridge:function(){
     //draw members
     ctx.strokeStyle="#00FF00";
     ctx.lineWidth=0.3;
-    var joints=this.bridge.joints;
-    var members=this.bridge.members;
-    for(var t=0;t<members.length;++t){
+    this.bridge.members.forEach(function(m){
       var tmpj;
       var x,y;
       
       ctx.beginPath();
-      tmpj=members[t].jointA;
+      tmpj=m.jointA;
       x=tmpj.x;y=tmpj.y;
       ctx.moveTo(tmpj.x,tmpj.y);
-      tmpj=members[t].jointB;
+      tmpj=m.jointB;
       x+=tmpj.x;y+=tmpj.y;
       ctx.lineTo(tmpj.x,tmpj.y);
       ctx.stroke();
       ctx.beginPath();
       ctx.arc(x/2,y/2,0.25,0,Math.PI*2);
-      if(members[t].select){
-        ctx.save();
-        ctx.strokeStyle="#00F";
-        ctx.stroke();
-        ctx.restore();
-      }
-    }
+    });
     
     
     //draw joints
     ctx.fillStyle="#0000FF";
     ctx.strokeStyle="#000000";
-    for(var t=0;t<joints.length;++t){
-      ctx.beginPath();
-      ctx.arc(joints[t].x,joints[t].y,0.25,0,Math.PI*2);
-      ctx.fill();
-      if(joints[t].select){
-        ctx.save();
+    this.bridge.joints.forEach(function(j){
         ctx.beginPath();
-        ctx.arc(joints[t].x,joints[t].y,0.25,0,Math.PI*2);
-        ctx.strokeStyle="#00F";
-        ctx.stroke();
-        ctx.restore();
-      }
-    }
-    //TODO debug
-    ctx=this.cv1.getContext("2d");
-    ctx.drawImage(this.cv12,0,0);
+        ctx.arc(j.x,j.y,0.25,0,Math.PI*2);
+        ctx.fill();
+    });
+    this.update_select();
 },
 update_select:function(){
+    this.cv13.width=this.cv1.width;
+    this.cv13.height=this.cv1.height;
+    var ctx=this.cv13.getContext("2d");
+    ctx.save();
+    ctx.translate(-this.transform.dx,-this.transform.dy);
+    ctx.scale(1/this.transform.r,-1/this.transform.r);
+
+    //draw members
+    ctx.strokeStyle="#000000";
+    ctx.lineWidth=0.3;
+    this.bridge.members.forEach(function(m){
+        if(!m.selected){
+            return;
+        }
+        var x=(m.jointA.x+m.jointB.x)/2;
+        var y=(m.jointA.y+m.jointB.y)/2;
+        ctx.beginPath();
+        ctx.arc(x,y,0.25,0,Math.PI*2);
+        ctx.stroke();
+    });
     
+    this.bridge.joints.forEach(function(j){
+        if(!j.selected){
+            return;
+        }
+        ctx.beginPath();
+        ctx.arc(j.x,j.y,0.25,0,Math.PI*2);
+        ctx.stroke();
+    });
+    if(this.hold){
+        //draw select box
+        ctx.fillStyle="rgba(0, 0, 200, 0.5)";
+        ctx.fillRect(this.newP.x,this.newP.y,-this.deltaP.x,-this.deltaP.y);
+    }else if(this.drag){
+        //draw skeleton
+        var dp={
+            "x":wpbd_round(this.deltaP.x,this.gridSize),
+            "y":wpbd_round(this.deltaP.y,this.gridSize)
+        };
+        this.bridge.joints.forEach(function(j){
+            if(j.selected){
+                j.x+=dp.x;
+                j.y+=dp.y;
+            }
+        });
+        ctx.save();
+        ctx.lineWidth=0.1;
+        ctx.strokeStyle="#F00";
+        this.bridge.members.forEach(function(m){
+          var tmpj;
+          ctx.beginPath();
+          tmpj=m.jointA;
+          ctx.moveTo(tmpj.x,tmpj.y);
+          tmpj=m.jointB;
+          ctx.lineTo(tmpj.x,tmpj.y);
+          ctx.stroke();
+        });
+        ctx.restore();
+        this.bridge.joints.forEach(function(j){
+            if(j.selected){
+                j.x-=dp.x;
+                j.y-=dp.y;
+            }
+        });
+        
+        
+    }
+    
+    //draw all
+    ctx=this.cv1.getContext("2d");
+    ctx.drawImage(this.cv11,0,0);
+    ctx.drawImage(this.cv12,0,0);
+    ctx.drawImage(this.cv13,0,0);
 },
 debug:function(){
     this.cv12.width=this.cv1.width;

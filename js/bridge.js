@@ -244,6 +244,33 @@ getNearestEntity:function(p,r){
         }
     });
     return f;
+},
+
+getBoxEntities:function(x1,y1,x2,y2){
+    var tmp;
+    if(x1>x2){
+        tmp=x1;
+        x1=x2;
+        x2=tmp;
+    }
+    if(y1>y2){
+        tmp=y1;
+        y1=y2;
+        y2=tmp;
+    }
+    console.debug("box: "+x1+" "+y1+" "+x2+" "+y2);
+    var debug=""
+    var f=this.members.filter(function(m){
+        var x=(m.jointB.x+m.jointA.x)/2;
+        var y=(m.jointB.y+m.jointA.y)/2;
+        debug+="("+x+"|"+y+")\m";
+        return (x1<=x)&&(x<=x2)&&(y1<=y)&&(y<=y2);
+    });
+    console.debug(debug);
+    console.debug("size: "+f.length);
+    return f.concat(this.joints.filter(function(j){
+        return (x1<=j.x)&&(j.x<=x2)&&(y1<=j.y)&&(j.y<=y2)&&!j.fixed;
+    }));
 }
 
 };//end of prototype
