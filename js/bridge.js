@@ -164,12 +164,12 @@ tryAddMember:function(materialIndex,sectionIndex,sizeIndex){
     }
     return (wpbd_order_new([],[],[],[member],[],[]));
 },
-tryMoveJoint:function(dp){
+tryMove:function(dp){
     if(dp.x==0&&dp.y==0){
         return null;
     }
     //selected joints
-    var joints=this.joints.filter(function(j){return j.selected;});
+    var joints=this.joints.filter(function(j){return j.selected&&!j.fixed});
     if(joints.length==0){
         //TODO smart select member?
         return null;
@@ -222,9 +222,8 @@ getNearestEntity:function(p,r){
     r*=r;
     //nearest entity
     var f=null;
-    //check joints that are not fixed
-    for(var i=this.condition.nPrescribedJoints;i<this.joints.length;i++){
-        var j=this.joints[i];
+    //check all joints
+    this.joints.forEach(function(j){
         var x=p.x-j.x;
         var y=p.y-j.y;
         var d=x*x+y*y;
@@ -232,7 +231,7 @@ getNearestEntity:function(p,r){
             f=j;
             r=d;
         }
-    }
+    });
     //check members
     this.members.forEach(function(m){
         var x=(m.jointB.x+m.jointA.x)/2-p.x;
@@ -269,7 +268,7 @@ getBoxEntities:function(x1,y1,x2,y2){
     console.debug(debug);
     console.debug("size: "+f.length);
     return f.concat(this.joints.filter(function(j){
-        return (x1<=j.x)&&(j.x<=x2)&&(y1<=j.y)&&(j.y<=y2)&&!j.fixed;
+        return (x1<=j.x)&&(j.x<=x2)&&(y1<=j.y)&&(j.y<=y2);
     }));
 }
 

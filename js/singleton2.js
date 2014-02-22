@@ -163,7 +163,7 @@ update_select:function(){
             "y":wpbd_round(this.deltaP.y,this.gridSize)
         };
         this.bridge.joints.forEach(function(j){
-            if(j.selected){
+            if(j.selected&&!j.fixed){
                 j.x+=dp.x;
                 j.y+=dp.y;
             }
@@ -182,7 +182,7 @@ update_select:function(){
         });
         ctx.restore();
         this.bridge.joints.forEach(function(j){
-            if(j.selected){
+            if(j.selected&&!j.fixed){
                 j.x-=dp.x;
                 j.y-=dp.y;
             }

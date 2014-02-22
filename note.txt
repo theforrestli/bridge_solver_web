@@ -1,6 +1,6 @@
 --- TASK ---
-draw effect
 implement isLegalPosition
+modified flag (for updating)
 
 
 --- original ---

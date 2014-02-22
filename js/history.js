@@ -1,11 +1,13 @@
 
 function wpbd_manager_new(bridge){
-    return {
+    var f={
         "bridge":bridge,
         "ptr":{"next":null,"prev":null,"order":null}};
+    jQuery.extend(f,wpbd_manager_prototype);
+    return f;
 }
 function wpbd_manager_add(list,es){
-    es.foreach(function(e){
+    es.forEach(function(e){
         if(e.index==list.length){
             list.push(e);
         }else{
@@ -15,7 +17,7 @@ function wpbd_manager_add(list,es){
     });
 }
 function wpbd_manager_exchange(list,es){
-    es.foreach(function(e){
+    es.forEach(function(e){
         var tmp={};
         var el=list[e.index];
         jQuery.extend(tmp,e);

@@ -24,7 +24,6 @@ function wpbdg_doubletap(e){
 function wpbdg_release(e){
     if(wpbdg.drag){
         if(wpbdg.hold){
-            //TODO select box
             var x=wpbdg.newP.x;
             var y=wpbdg.newP.y;
             wpbdg.bridge.getBoxEntities(x,y,x-wpbdg.deltaP.x,y-wpbdg.deltaP.y).forEach(function(e){
@@ -32,6 +31,7 @@ function wpbdg_release(e){
             });
         }else{
             //TODO move joint
+            var order=wpbdg.bridge.tryMove(wpbdg.deltaP);
         }
     }
     wpbdg.deltaP.x=0;
