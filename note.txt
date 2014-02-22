@@ -1,6 +1,9 @@
 --- TASK ---
 implement isLegalPosition
-modified flag (for updating)
+display member stats
+display report
+display cost report
+complete bridge modify function
 
 
 --- original ---

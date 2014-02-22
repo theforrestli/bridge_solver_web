@@ -155,7 +155,7 @@ function wpbd_singleton(){
         return f;
 
     }},
-    {"index":1,"name":"Solid Bar","shortName":"Bar","getShapes":function(wpbd){
+    {"index":1,"name":"Hollow Tube","shortName":"Tube","getShapes":function(wpbd){
         var nSizes = wpbd.widths.length;
         var f=Array(nSizes);
         for(var i=0;i<nSizes;i++){
@@ -205,6 +205,9 @@ function wpbd_singleton(){
     //grid
     f.abutmentClearance=1;
     f.wearSurfaceHeight = 0.80;
+
+    //custom
+    f.guiLayers=3;
     return f;
 }
 function wpbd_material_get(index){

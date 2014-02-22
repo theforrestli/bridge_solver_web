@@ -10,7 +10,8 @@ function wpbdg_tap(e){
     console.debug(element);
     if(element!=null){
         element.selected^=true;
-        wpbdg.update_select();
+        wpbdg.updateFlag(2);
+        wpbdg.update();
     }
 }
 function wpbdg_doubletap(e){
@@ -19,7 +20,8 @@ function wpbdg_doubletap(e){
     if(element!=null){
         element.selected=true;
     }
-    wpbdg.update_select();
+    wpbdg.updateFlag(2);
+    wpbdg.update();
 }
 function wpbdg_release(e){
     if(wpbdg.drag){
@@ -29,22 +31,26 @@ function wpbdg_release(e){
             wpbdg.bridge.getBoxEntities(x,y,x-wpbdg.deltaP.x,y-wpbdg.deltaP.y).forEach(function(e){
                 e.selected=true;
             });
+            wpbdg.updateFlag(2);
         }else{
             //TODO move joint
             var order=wpbdg.bridge.tryMove(wpbdg.deltaP);
+            wpbdg.manager.doOrder(order);
+            wpbdg.updateFlag(1);
         }
     }
     wpbdg.deltaP.x=0;
     wpbdg.deltaP.y=0;
     wpbdg.hold=false;
     wpbdg.drag=false;
-    wpbdg.update_select();
+    wpbdg.update();
 }
 function wpbdg_hold(e){
     wpbdg.hold=true;
     wpbdg.bridge.deselectAll();
     wpbdg.updateNewP(e);
-    wpbdg.update_select();
+    wpbdg.updateFlag(2);
+    wpbdg.update();
 }
 function wpbdg_drag(e){
     wpbdg.drag=true;
@@ -52,9 +58,11 @@ function wpbdg_drag(e){
     wpbdg.updateDeltaP(e);
     
     if(wpbdg.hold==true){
-        //TODO draw box
+        //update box
     }else{
-        //TODO draw skeleton
+        //draw skeleton
     }
-    wpbdg.update_select();
+    //both case need flag 2
+    wpbdg.updateFlag(2);
+    wpbdg.update();
 }

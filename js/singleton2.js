@@ -3,21 +3,39 @@ function wpbdg_singleton(){
     var f={};
     jQuery.extend(f,wpbdg_prototype);
 
-    f.gridSize=0.25;
+    //core
+    f.bridge=wpbd_bridge_new();
+    f.manager=wpbd_manager_new(f.bridge);
 
+    //settings
+    f.gridSize=0.25;
+    f.mt_select=$("#wpbd_mt-select");
+    wpbd.materials.forEach(function(m){
+        f.mt_select.append($("<option></option>").text(m.shortName).attr("value",m.index));
+    });
+    f.cs_select=$("#wpbd_cs-select");
+    wpbd.crossSections.forEach(function(s){
+        f.cs_select.append($("<option></option>").text(s.shortName).attr("value",s.index));
+    });
+    f.wd_select=$("#wpbd_wd-select");
+    var i=0;
+    wpbd.widths.forEach(function(w){
+        f.wd_select.append($("<option></option>").text(w).attr("value",i++));
+    });
+
+    //gui
     f.hold=false;
     f.drag=false;
     f.deltaP={"x":0,"y":0};
     f.newP={"x":0,"y":0};
-    f.bridge=wpbd_bridge_new();
-    f.manager=wpbd_manager_new(f.bridge);
-    //f.selecteds=[]; TODO what else?
     f.cv1=document.getElementById("wpbd_cv1");
     f.cv11=document.createElement("canvas");
     f.cv12=document.createElement("canvas");
     f.cv13=document.createElement("canvas");
     f.transform={"r":1,"dx":0,"dy":0};
+    f.flag=0;
     
+    //listeners
     var tmp=Hammer(f.cv1);
     tmp.on("tap",wpbdg_tap);
     tmp.on("doubletap",wpbdg_doubletap);
@@ -70,16 +88,38 @@ updateDeltaP:function (e){
     this.deltaP.x=e.gesture.deltaX/rect.width*this.cv1.width*this.transform.r;
     this.deltaP.y=-e.gesture.deltaY/rect.height*this.cv1.height*this.transform.r;
 },
-update_condition:function(){
+updateFlag:function(flag){
+    if(this.flag>flag){
+        this.flag=flag;
+    }
+},
+update:function(){
+    switch(this.flag){
+    case 0:
+        this.updateCondition();
+    case 1:
+        this.updateBridge();
+    case 2:
+        this.updateSelect();
+    default:
+        //draw all
+        ctx=this.cv1.getContext("2d");
+        ctx.drawImage(this.cv11,0,0);
+        ctx.drawImage(this.cv12,0,0);
+        ctx.drawImage(this.cv13,0,0);
+        break;
+    }
+    this.flag=3;
+},
+updateCondition:function(){
     this.update_transform();
     this.cv11.width=this.cv1.width;
     this.cv11.height=this.cv1.height;
     var ctx=this.cv11.getContext("2d");
     ctx.fillStyle="FFF";
     ctx.fillRect(0,0,this.cv1.width,this.cv1.height);
-    
 },
-update_bridge:function(){
+updateBridge:function(){
     this.cv12.width=this.cv1.width;
     this.cv12.height=this.cv1.height;
     var ctx=this.cv12.getContext("2d");
@@ -120,9 +160,8 @@ update_bridge:function(){
         ctx.arc(j.x,j.y,0.25,0,Math.PI*2);
         ctx.fill();
     });
-    this.update_select();
 },
-update_select:function(){
+updateSelect:function(){
     this.cv13.width=this.cv1.width;
     this.cv13.height=this.cv1.height;
     var ctx=this.cv13.getContext("2d");
@@ -187,15 +226,8 @@ update_select:function(){
                 j.y-=dp.y;
             }
         });
-        
-        
     }
     
-    //draw all
-    ctx=this.cv1.getContext("2d");
-    ctx.drawImage(this.cv11,0,0);
-    ctx.drawImage(this.cv12,0,0);
-    ctx.drawImage(this.cv13,0,0);
 },
 debug:function(){
     this.cv12.width=this.cv1.width;

@@ -31,42 +31,24 @@
                 </fieldset>
             </form>
             <div data-role="controlgroup" data-type="horizontal" data-mini="true" class="ui-btn-inline" >
-                <a href="#" class="ui-btn">all</a>
-                <a href="#" class="ui-btn">none</a>
-            </div>
-            <div data-role="controlgroup" data-type="horizontal" data-mini="true" class="ui-btn-inline" >
                 <a href="#" class="ui-btn">undo</a>
                 <a href="#" class="ui-btn">redo</a>
             </div>
             <div data-role="controlgroup" data-type="horizontal" data-mini="true" class="ui-btn-inline" >
-                
-                <a href="#" class="ui-btn">previous</a>
-                <a href="#" class="ui-btn">next</a>
-            </div>
-            <div data-role="controlgroup" data-type="horizontal" data-mini="true" class="ui-btn-inline" >
-                
                 <a href="#" class="ui-btn">$157,423.32</a>
                 <a href="#" class="ui-btn">report</a>
             </div>
             <form class="ui-btn-inline" >
+                <!-- to be filled with js --!>
                 <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" >
-                    <label for="wpbd_material-select" class="ui-hidden-accessible">More</label>
-                    <select name="wpbd_material-select" id="wpbd_material-select" >
-                        <option value="0">CS</option>
-                        <option value="1">HSS</option>
-                        <option value="2">QTS</option>
+                    <label for="wpbd_mt-select" class="ui-hidden-accessible">More</label>
+                    <select name="wpbd_mt-select" id="wpbd_mt-select" >
                     </select>
-                    <label for="wpbd_material-select" class="ui-hidden-accessible">More</label>
-                    <select name="wpbd_material-select" id="wpbd_material-select" >
-                        <option value="0">CS</option>
-                        <option value="1">HSS</option>
-                        <option value="2">QTS</option>
+                    <label for="wpbd_cs-select" class="ui-hidden-accessible">More</label>
+                    <select name="wpbd_cs-select" id="wpbd_cs-select" >
                     </select>
-                    <label for="wpbd_material-select" class="ui-hidden-accessible">More</label>
-                    <select name="wpbd_material-select" id="wpbd_material-select" >
-                        <option value="0">CS</option>
-                        <option value="1">HSS</option>
-                        <option value="2">QTS</option>
+                    <label for="wpbd_wd-select" class="ui-hidden-accessible">More</label>
+                    <select name="wpbd_wd-select" id="wpbd_wd-select" >
                     </select>
                 </fieldset>
             </form>
@@ -104,8 +86,7 @@
     console.debug("finished!");
     console.debug(bridge.toString());
     wpbdg=wpbdg_singleton();
-    wpbdg.update_condition();
-    wpbdg.update_bridge();
+    wpbdg.update();
     if(true){
         var x=1;
     }else{

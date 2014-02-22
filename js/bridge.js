@@ -9,6 +9,8 @@ function wpbd_bridge_new(){
     f.joints=[];
     f.members=[];
     f.condition={};
+    //TODO move this line to a more logical place
+    jQuery.extend(f.condition,wpbd_condition_prototype);
     jQuery.extend(f,wpbd_bridge_prototype);
     //load default bridge
     f.parseByte(wpbd.defaultBridgeString);
@@ -176,7 +178,7 @@ tryMove:function(dp){
     }
     //joints in the same spot?
     if(joints.some(function(j1){
-        return this.joints.some(function(j2){
+        return joints.some(function(j2){
             return j1.x+dp.x==j2.x&&j1.y+dp.y==j2.y&&j1!=j2;
         });
     })){
