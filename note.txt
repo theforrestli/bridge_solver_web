@@ -1,7 +1,4 @@
 --- TASK ---
-transform P
-draw bridge
-edit bridge
 draw effect
 implement isLegalPosition
 

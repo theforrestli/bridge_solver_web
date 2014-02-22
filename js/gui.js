@@ -6,14 +6,14 @@ function wpbdg_getEntity(){
 }
 function wpbdg_tap(e){
     wpbdg.upateNewP(e);
-    var element=wpbdg.bridge.getNearestEntity(this.newP);  
+    var element=wpbdg.bridge.getNearestEntity(wpbdg.newP,2);  
     if(element!=null){
         element.selected^=true;
         wpbdg.update_select();
     }
 }
 function wpbdg_doubletap(e){
-    var element=wpbdg.bridge.getNearestEntity(this.newP);  
+    var element=wpbdg.bridge.getNearestEntity(wpbdg.newP,2);  
     wpbdg.bridge.deselectAll();
     if(element!=null){
         element.selected=true;
