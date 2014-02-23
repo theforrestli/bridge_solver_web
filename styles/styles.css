@@ -16,7 +16,9 @@ html, body {
 #wpbd_content{
     padding:0px;
 }
-#TEST{
+#wpbd_test1{
+    height:100%;
+    overflow-y:scroll;
 }
 /*
 table.testc1 td{
