@@ -7,8 +7,16 @@ body.*
 .inline{
     float:left;
 }
-a,form{
-  margin: 0px;
+html, body {
+    height : 100%;
+}
+.ui-controlgroup,fieldset.ui-controlgroup{
+    margin:5px;
+}
+#wpbd_content{
+    padding:0px;
+}
+#TEST{
 }
 /*
 table.testc1 td{

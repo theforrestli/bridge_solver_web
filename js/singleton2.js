@@ -36,6 +36,7 @@ function wpbdg_singleton(){
     f.flag=0;
     
     //listeners
+    $(window).bind("orientationchange resize pageshow", wpbdg_update_geometry);
     var tmp=Hammer(f.cv1,{prevent_default:true});
     tmp.on("tap",wpbdg_tap);
     tmp.on("doubletap",wpbdg_doubletap);
@@ -112,6 +113,8 @@ update:function(){
     this.flag=3;
 },
 updateCondition:function(){
+    this.cv1.width=this.cv1.offsetWidth;
+    this.cv1.height=this.cv1.offsetHeight;
     this.update_transform();
     this.cv11.width=this.cv1.width;
     this.cv11.height=this.cv1.height;

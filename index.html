@@ -10,11 +10,8 @@
     <title>jiaqi's test page</title>
 </head>
 <body>
-    <div data-role="page">
-        <div data-role="header">
-            <h1>test header</h1>
-        </div>
-        <div data-role="header">
+    <div data-role="page" id="wpbd_page">
+        <div id="wpbd_header" data-role="header">
             <div data-role="controlgroup" data-type="horizontal" data-mini="true" class="ui-btn-inline" >
                   <a href="#" class="ui-btn">new</a>
                   <a href="#" class="ui-btn">load</a>
@@ -38,36 +35,46 @@
                 <a href="#" class="ui-btn">$157,423.32</a>
                 <a href="#" class="ui-btn">report</a>
             </div>
-            <form class="ui-btn-inline" >
-                <!-- to be filled with js --!>
-                <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" >
-                    <label for="wpbd_mt-select" class="ui-hidden-accessible">More</label>
-                    <select name="wpbd_mt-select" id="wpbd_mt-select" >
-                    </select>
-                    <label for="wpbd_cs-select" class="ui-hidden-accessible">More</label>
-                    <select name="wpbd_cs-select" id="wpbd_cs-select" >
-                    </select>
-                    <label for="wpbd_wd-select" class="ui-hidden-accessible">More</label>
-                    <select name="wpbd_wd-select" id="wpbd_wd-select" >
-                    </select>
-                </fieldset>
-            </form>
-            <form class="ui-btn-inline" style="margin:0px" > 
-                <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" >
-                    <input type="radio" name="wpbd_view" id="wpbd_view-1" value="on" checked="checked">
-                    <label for="wpbd_view-1">L</label>
-                    <input type="radio" name="wpbd_view" id="wpbd_view-2" value="off" checked="checked">
-                    <label for="wpbd_view-2">M</label>
-                    <input type="radio" name="wpbd_view" id="wpbd_view-3" value="off" checked="checked">
-                    <label for="wpbd_view-3">H</label>
-                </fieldset>
-            </form>
+            <!-- to be filled with js --!>
+            <fieldset class="ui-btn-inline" data-role="controlgroup" data-type="horizontal" data-mini="true" >
+                <label for="wpbd_mt-select" class="ui-hidden-accessible">More</label>
+                <select name="wpbd_mt-select" id="wpbd_mt-select" >
+                </select>
+                <label for="wpbd_cs-select" class="ui-hidden-accessible">More</label>
+                <select name="wpbd_cs-select" id="wpbd_cs-select" >
+                </select>
+                <label for="wpbd_wd-select" class="ui-hidden-accessible">More</label>
+                <select name="wpbd_wd-select" id="wpbd_wd-select" >
+                </select>
+            </fieldset>
+            <fieldset class="ui-btn-inline" data-role="controlgroup" data-type="horizontal" data-mini="true" >
+                <input type="radio" name="wpbd_view" id="wpbd_view-1" value="on" checked="checked">
+                <label for="wpbd_view-1">L</label>
+                <input type="radio" name="wpbd_view" id="wpbd_view-2" value="off" checked="checked">
+                <label for="wpbd_view-2">M</label>
+                <input type="radio" name="wpbd_view" id="wpbd_view-3" value="off" checked="checked">
+                <label for="wpbd_view-3">H</label>
+            </fieldset>
+        </div><!-- header -->
 
-        </div>
-    <canvas id="wpbd_cv1" width=400 height=400 style="display:block;width:600;height:600px;" ></canvas>
-    </div>
+        <div id="wpbd_content" data-role="content" >
+            <table style="height:100%;"><tr>
+                <td style="width:100%;"><canvas id="wpbd_cv1" width=400 height=100 style="display:block;width:100%;height:100%;" ></canvas></td>
+
+                <td>
+                    <fieldset data-role="controlgroup" data-mini="true">
+                        <input type="checkbox" name="checkbox-v-2a" id="checkbox-v-2a">
+                        <label for="checkbox-v-2a">One</label>
+                        <input type="checkbox" name="checkbox-v-2b" id="checkbox-v-2b">
+                        <label for="checkbox-v-2b">Two</label>
+                        <input type="checkbox" name="checkbox-v-2c" id="checkbox-v-2c">
+                        <label for="checkbox-v-2c">Three</label>
+                    </fieldset>
+                </td>
+            </tr></table>
+        </div><!-- content -->
+    </div><!-- page -->
   
-    <dir id="dir_test1"></dir>
     <script src="js/singleton.js"></script>
     <script src="js/singleton2.js"></script>
     <script src="js/gui.js"></script>
@@ -86,7 +93,14 @@
     console.debug("finished!");
     console.debug(bridge.toString());
     wpbdg=wpbdg_singleton();
-    wpbdg.update();
+    $(document).ready(function(){
+        wpbdg.update();
+    });
+    $( window ).resize(function(){
+        wpbdg.updateFlag(0);
+        wpbdg.update();
+    });
+
     if(true){
         var x=1;
     }else{

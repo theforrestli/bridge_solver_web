@@ -1,4 +1,24 @@
 
+function wpbdg_update_geometry() {
+    /* Some orientation changes leave the scroll position at something
+     * that isn't 0,0. This is annoying for user experience. */
+    scroll(0, 0);
+
+    /* Calculate the geometry that our content area should take */
+    var header = $("#wpbd_header");
+    var content = $("#wpbd_content");
+    var viewport_height = $(window).height();
+    
+    var content_height = viewport_height - header.outerHeight();
+    
+    /* Trim margin/border/padding height */
+    content_height -= (content.outerHeight() - content.height());
+    content.height(content_height);
+    wpbdg.cv1.height=0;
+    wpbdg.updateFlag(0);
+    wpbdg.update();
+    console.debug(content_height);
+}
 
 function wpbdg_getEntity(){
     //TODO get single nearest entity
