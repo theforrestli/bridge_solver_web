@@ -16,8 +16,9 @@ html, body {
 #wpbd_content{
     padding:0px;
 }
-#wpbd_test1{
+#wpbd_memberlist{
     height:100%;
+    /* TODO scroll or auto? */
     overflow-y:scroll;
 }
 /*

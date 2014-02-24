@@ -21,6 +21,9 @@ deck joint member ...
 ...
 --- end ---
 
+--- memberlist ---
+index, length, type, ratio*2, slenderness
+
 --- redraw level ---
 condition
 bridge

@@ -23,6 +23,9 @@ function wpbdg_singleton(){
         f.wd_select.append($("<option></option>").text(w).attr("value",i++));
     });
 
+    //memberlist
+    f.memberlist=$("#wpbd_memberlist");
+
     //gui
     f.hold=false;
     f.drag=false;
@@ -128,9 +131,9 @@ updateBridge:function(){
     var ctx=this.cv12.getContext("2d");
     var joints=this.bridge.joints;
     var members=this.bridge.members;
+
     
-    //paint background
-    var p;
+    
     ctx.save();
     ctx.translate(-this.transform.dx,-this.transform.dy);
     ctx.scale(1/this.transform.r,-1/this.transform.r);
