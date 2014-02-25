@@ -4,9 +4,6 @@ body.*
   background-color: #000;
   color: #FFF;
 }
-.inline{
-    float:left;
-}
 html, body {
     height : 100%;
 }
@@ -16,10 +13,27 @@ html, body {
 #wpbd_content{
     padding:0px;
 }
-#wpbd_memberlist{
+#wpbd_contenttable{
     height:100%;
+    border-spacing:0px;
+}
+#wpbd_contenttable td{
+    padding:0px;
+
+}
+#wpbd_membertables{
     /* TODO scroll or auto? */
-    overflow-y:scroll;
+}
+#wpbd_membertable{
+    border-collapse:collapse;
+}
+#wpbd_membertable td,th{
+    float:center;
+    padding:5px;
+    border:1px solid black;
+}
+#wpbd_membertable tr.selected{
+    background-color:#88F;
 }
 /*
 table.testc1 td{

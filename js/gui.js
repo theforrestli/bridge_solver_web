@@ -14,6 +14,7 @@ function wpbdg_update_geometry() {
     /* Trim margin/border/padding height */
     content_height -= (content.outerHeight() - content.height());
     content.height(content_height);
+    //$(".wpbd_row").css("height",content_height);
     wpbdg.cv1.height=0;
     wpbdg.updateFlag(0);
     wpbdg.update();
