@@ -24,7 +24,12 @@ function wpbdg_singleton(){
     });
 
     //memberlist
-    f.memberlist=$("#wpbd_memberlist");
+    f.membertable=$("#wpbd_membertable");
+    //TODO test
+    f.bridge.members.forEach(function(m){
+        f.membertable.append(wpbdg_memberrow(m));
+    });
+    f.membertable.tablesorter();
 
     //gui
     f.hold=false;
@@ -132,8 +137,6 @@ updateBridge:function(){
     var joints=this.bridge.joints;
     var members=this.bridge.members;
 
-    
-    
     ctx.save();
     ctx.translate(-this.transform.dx,-this.transform.dy);
     ctx.scale(1/this.transform.r,-1/this.transform.r);
@@ -166,6 +169,14 @@ updateBridge:function(){
         ctx.arc(j.x,j.y,0.25,0,Math.PI*2);
         ctx.fill();
     });
+
+    var tbody=this.membertable.children("tbody");
+    tbody.text("");
+
+    this.bridge.members.forEach(function(m){
+        tbody.append(wpbdg_memberrow(m));
+    });
+    this.membertable.tablesorter();
 },
 updateSelect:function(){
     ///////////////
@@ -220,13 +231,13 @@ updateSelect:function(){
         ctx.lineWidth=0.1;
         ctx.strokeStyle="#F00";
         this.bridge.members.forEach(function(m){
-          var tmpj;
-          ctx.beginPath();
-          tmpj=m.jointA;
-          ctx.moveTo(tmpj.x,tmpj.y);
-          tmpj=m.jointB;
-          ctx.lineTo(tmpj.x,tmpj.y);
-          ctx.stroke();
+            var tmpj;
+            ctx.beginPath();
+            tmpj=m.jointA;
+            ctx.moveTo(tmpj.x,tmpj.y);
+            tmpj=m.jointB;
+            ctx.lineTo(tmpj.x,tmpj.y);
+            ctx.stroke();
         });
         ctx.restore();
         this.bridge.joints.forEach(function(j){
@@ -239,6 +250,8 @@ updateSelect:function(){
     ///////////////
     // others
     ////////////////
+
+    //select
     var mt=-2;
     var cs=-2;
     var wd=-2;
@@ -262,16 +275,25 @@ updateSelect:function(){
             wd=-1;
         }
     });
-    //nothing selected
-    if(mt==-2){
-        return;
+    //something selected
+    if(mt!=-2){
+        this.mt_select.val(mt);
+        this.cs_select.val(cs);
+        this.wd_select.val(wd);
+        this.mt_select.selectmenu("refresh");
+        this.cs_select.selectmenu("refresh");
+        this.wd_select.selectmenu("refresh");
     }
-    this.mt_select.val(mt);
-    this.cs_select.val(cs);
-    this.wd_select.val(wd);
-    this.mt_select.selectmenu("refresh");
-    this.cs_select.selectmenu("refresh");
-    this.wd_select.selectmenu("refresh");
+
+    var members=this.bridge.members;
+    //membertable
+    this.membertable.children("tbody").children().each(function(i,tr){
+        if(members[tr.firstChild.innerText].selected){
+            $(tr).addClass("selected");
+        }else{
+            $(tr).removeClass("selected");
+        }
+    });
 },
 debug:function(){
     this.cv12.width=this.cv1.width;

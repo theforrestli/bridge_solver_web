@@ -28,7 +28,6 @@ function wpbdg_getEntity(){
 function wpbdg_tap(e){
     wpbdg.updateNewP(e);
     var element=wpbdg.bridge.getNearestEntity(wpbdg.newP,2);  
-    console.debug(element);
     if(element!=null){
         element.selected^=true;
         wpbdg.updateFlag(2);
@@ -74,7 +73,6 @@ function wpbdg_hold(e){
     wpbdg.update();
 }
 function wpbdg_drag(e){
-    console.debug(e);
     wpbdg.drag=true;
     wpbdg.updateNewP(e);
     wpbdg.updateDeltaP(e);
@@ -87,4 +85,21 @@ function wpbdg_drag(e){
     //both case need flag 2
     wpbdg.updateFlag(2);
     wpbdg.update();
+}
+function wpbdg_memberrow(m){
+    var a=m.jointA;
+    var b=m.jointB;
+    var dx=b.x-a.x;
+    var dy=b.y-a.y;
+    var len=Math.sqrt(dx*dx+dy*dy);
+    var f=$("<tr>")
+        .append($("<th>").text(m.index))
+        .append($("<td>").text(m.material.shortName))
+        .append($("<td>").text(m.shape.section.shortName))
+        .append($("<td>").text(m.shape.width))
+        .append($("<td>").text(len.toPrecision(3)))
+        .append($("<td>").text((len*m.shape.inverseRadiusOfGyration).toPrecision(4)))
+        .append($("<td>").text(0))
+        .append($("<td>").text(0));
+    return f;
 }
