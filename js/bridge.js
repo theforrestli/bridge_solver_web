@@ -363,7 +363,21 @@ function wpbd_joint_new(i,x,y,fixed){
 }
 //TODO where is strength ratio?
 function wpbd_member_new(i,j1,j2,material,shape){
-    return {"index":i,"jointA":j1,"jointB":j2,"material":material,"shape":shape,"selected":false};
+    return {
+        "index":i,
+        "jointA":j1,
+        "jointB":j2,
+        "material":material,
+        "shape":shape,
+        "selected":false,
+        "compressionForceStrengthRatio":0,
+        "tensionForceStrengthRatio":0,
+        "getLength":function(){
+            var dx=this.jointB.x-this.jointA.x;
+            var dy=this.jointB.y-this.jointA.y;
+            return Math.sqrt(dx*dx+dy*dy);
+        }
+    };
 }
 /**
  * DesignCondition

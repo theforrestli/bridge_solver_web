@@ -1,12 +1,17 @@
 --- TASK ---
+bridge delete function
 implement isLegalPosition
 display member stats
 display report
 display cost report
 complete bridge modify function
 
+enable/disable button
+implement preference
 
---- original ---
+
+
+--- original button ---
 menus:
 (new load save print) (edit analyze) (select_all select_none) (undo redo) (iteration last next all) (cost detail) (status report)
 (material) (shape) (size) (increase decrease) (? label assist_line ?) (low medium high_grid)
@@ -22,7 +27,7 @@ deck joint member ...
 --- end ---
 
 --- memberlist ---
-index, length, type, ratio*2, slenderness
+index, material, crossSection, size, length, slenderness, ratio*2
 
 --- redraw level ---
 condition
@@ -46,7 +51,9 @@ hover
 
 --- end ---
   
-  
+--- preference ---
+
+--- end --- 
 
 
 

@@ -16,14 +16,10 @@ function wpbdg_update_geometry() {
     content.height(content_height);
     //$(".wpbd_row").css("height",content_height);
     wpbdg.cv1.height=0;
-    wpbdg.updateFlag(0);
+    wpbdg.updateFlag(1);
     wpbdg.update();
 }
 
-function wpbdg_getEntity(){
-    //TODO get single nearest entity
-    
-}
 function wpbdg_tap(e){
     if(e.srcElement==wpbdg.cv1){
         wpbdg.updateNewP(e);
@@ -33,7 +29,7 @@ function wpbdg_tap(e){
     }
     if(element!=null){
         element.selected^=true;
-        wpbdg.updateFlag(2);
+        wpbdg.updateFlag("select");
     }
     wpbdg.update();
 }
@@ -45,7 +41,7 @@ function wpbdg_doubletap(e){
         var element=wpbdg.bridge.members[wpbdg_get_row_index(e.srcElement)];
     }
     wpbdg.bridge.deselectAll();
-    wpbdg.updateFlag(2);
+    wpbdg.updateFlag("select");
     //invoke wpbdg_tap
 }
 function wpbdg_release(e){
@@ -56,12 +52,11 @@ function wpbdg_release(e){
             wpbdg.bridge.getBoxEntities(x,y,x-wpbdg.deltaP.x,y-wpbdg.deltaP.y).forEach(function(e){
                 e.selected=true;
             });
-            wpbdg.updateFlag(2);
+            wpbdg.updateFlag("select");
         }else{
             //TODO move joint
             var order=wpbdg.bridge.tryMove(wpbdg.deltaP);
             wpbdg.manager.doOrder(order);
-            wpbdg.updateFlag(1);
         }
     }
     wpbdg.deltaP.x=0;
@@ -74,7 +69,7 @@ function wpbdg_hold(e){
     wpbdg.hold=true;
     wpbdg.bridge.deselectAll();
     wpbdg.updateNewP(e);
-    wpbdg.updateFlag(2);
+    wpbdg.updateFlag("select");
     wpbdg.update();
 }
 function wpbdg_drag(e){
@@ -88,7 +83,7 @@ function wpbdg_drag(e){
         //draw skeleton
     }
     //both case need flag 2
-    wpbdg.updateFlag(2);
+    wpbdg.updateFlag("select");
     wpbdg.update();
 }
 function wpbdg_memberrow(m){

@@ -208,6 +208,12 @@ function wpbd_singleton(){
 
     //custom
     f.guiLayers=3;
+    f.flags={
+        "condition":1,
+        "bridge":2,
+        "analyze":4,
+        "select":8
+    };
     return f;
 }
 function wpbd_material_get(index){

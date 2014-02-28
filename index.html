@@ -1,13 +1,13 @@
 
 <html>
 <head>
-    <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
-    <script src="http://code.jquery.com/mobile/1.4.1/jquery.mobile-1.4.1.min.js"></script>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <script src="include/jquery-2.1.0.min.js"></script>
+    <script src="include/jquery.mobile-1.4.1.min.js"></script>
     <script src="include/hammer.min.js"></script>
     <script src="include/jquery.tablesorter.min.js"></script>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <link href="http://code.jquery.com/mobile/1.4.1/jquery.mobile-1.4.1.min.css" media="screen" rel="stylesheet" type="text/css" />
-    <link href="styles/styles.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href= "include/jquery.mobile-1.4.1.min.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href= "styles/styles.css" media="screen" rel="stylesheet" type="text/css" />
     <title>jiaqi's test page</title>
 </head>
 <body>
@@ -18,19 +18,13 @@
                   <a href="#" class="ui-btn">load</a>
                   <a href="#" class="ui-btn">save</a>
             </div><!--
-            --><form class="ui-btn-inline" style="margin:0px" > 
-                <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" >
-                    <input type="radio" name="wpbd_view" id="wpbd_view-1" value="on" checked="checked">
-                    <label for="wpbd_view-1">edit</label>
-                    <input type="radio" name="wpbd_view" id="wpbd_view-2" value="off" checked="checked">
-                    <label for="wpbd_view-2">analyze</label>
-                    <input type="radio" name="wpbd_view" id="wpbd_view-3" value="off" checked="checked">
-                    <label for="wpbd_view-3">animate</label>
-                </fieldset>
-            </form><!--
             --><div data-role="controlgroup" data-type="horizontal" data-mini="true" class="ui-btn-inline" >
-                <a href="#" class="ui-btn">undo</a>
-                <a href="#" class="ui-btn">redo</a>
+                <a href="#" class="ui-btn" id="wpbd_analyze">analyze</a>
+                <a href="#" class="ui-btn" id="wpbd_animate">animate</a>
+            </div><!--
+            --><div data-role="controlgroup" data-type="horizontal" data-mini="true" class="ui-btn-inline" >
+                <a href="#" class="ui-btn" id="wpbd_undo">undo</a>
+                <a href="#" class="ui-btn" id="wpbd_redo">redo</a>
             </div><!--
             --><div data-role="controlgroup" data-type="horizontal" data-mini="true" class="ui-btn-inline" >
                 <a href="#" class="ui-btn">$157,423.32</a>
@@ -57,7 +51,10 @@
                     <input type="radio" name="wpbd_view" id="wpbd_view-3" value="off" checked="checked">
                     <label for="wpbd_view-3">H</label>
                 </fieldset>
-            </form>
+            </form><!--
+            --><div data-role="controlgroup" data-type="horizontal" data-mini="true" class="ui-btn-inline" >
+                <a href="#" class="ui-btn" id="wpbd_delete">delete</a>
+            </div>
         </div><!-- header -->
 
         <div id="wpbd_content" data-role="content" >
@@ -95,6 +92,7 @@
     <script src="js/condition.js"></script>
     <script src="js/bridge.js"></script>
     <script src="js/analysis.js"></script>
+    <script src="js/button.js"></script>
     <script>
     tmp={};
     input="2014205320000011 19  0  0 16  0 32  0 48  0 64  0 80  0  8 16 24 16 40 17 56 16 72 16 1 71118 7 81116 8 91118 91011181011111611 61118 6 50112 5 420 5 4 320 5 3 220 5 2 10112 7 220 5 2 81116 8 30112 3 90112 9 40112 410011210 51116 51120 50.40|0.00|0.31|0.00|0.46|0.00|0.46|0.00|0.31|0.00|0.40|0.00|0.00|0.09|0.00|0.21|0.00|0.26|0.00|0.21|0.00|0.09|0.00|0.20|0.24|0.00|0.00|0.12|0.08|0.04|0.08|0.04|0.00|0.12|0.24|0.00|0.00|0.20||00007B-|1|2.000|";

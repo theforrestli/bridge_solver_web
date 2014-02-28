@@ -6,6 +6,7 @@ function wpbdg_singleton(){
     //core
     f.bridge=wpbd_bridge_new();
     f.manager=wpbd_manager_new(f.bridge);
+    f.result=wpbd_analyze(f.bridge,null);
 
     //settings
     f.gridSize=0.25;
@@ -22,16 +23,22 @@ function wpbdg_singleton(){
     wpbd.widths.forEach(function(w){
         f.wd_select.append($("<option></option>").text(w).attr("value",i++));
     });
+    
+    //buttons
+    $("#wpbd_undo").on("click",wpbdg_undo);
+    $("#wpbd_redo").on("click",wpbdg_redo);
+    $("#wpbd_analyze").on("click",wpbdg_analyze);
+    $("#wpbd_delete").on("click",wpbdg_delete);
 
     //memberlist
     f.membertable=$("#wpbd_membertable");
-    var tmp=Hammer(f.membertable.children("tbody")[0]);
+    var tbody=f.membertable.children("tbody");
+    var tmp=Hammer(tbody[0]);
     tmp.on("doubletap", wpbdg_doubletap);
     tmp.on("tap", wpbdg_tap);
 
-    //TODO test
     f.bridge.members.forEach(function(m){
-        f.membertable.children("tbody").append(wpbdg_memberrow(m));
+        tbody.append(wpbdg_memberrow(m));
     });
     f.membertable.tablesorter();
 
@@ -45,7 +52,7 @@ function wpbdg_singleton(){
     f.cv12=document.createElement("canvas");
     f.cv13=document.createElement("canvas");
     f.transform={"r":1,"dx":0,"dy":0};
-    f.flag=0;
+    f.flag=15;
     
     //listeners
     $(window).bind("orientationchange resize pageshow", wpbdg_update_geometry);
@@ -98,31 +105,52 @@ updateNewP:function (e){
 },
 updateDeltaP:function (e){
     var rect=this.cv1.getBoundingClientRect();
-    this.deltaP.x=e.gesture.deltaX/rect.width*this.cv1.width*this.transform.r;
-    this.deltaP.y=-e.gesture.deltaY/rect.height*this.cv1.height*this.transform.r;
+    this.deltaP.x=e.gesture.deltaX/rect.width*this.cv1.width*this.transform.r/5;
+    this.deltaP.y=-e.gesture.deltaY/rect.height*this.cv1.height*this.transform.r/5;
 },
 updateFlag:function(flag){
-    if(this.flag>flag){
-        this.flag=flag;
-    }
-},
-update:function(){
-    switch(this.flag){
-    case 0:
-        this.updateCondition();
-    case 1:
-        this.updateBridge();
-    case 2:
-        this.updateSelect();
-    default:
-        //draw all
-        ctx=this.cv1.getContext("2d");
-        ctx.drawImage(this.cv11,0,0);
-        ctx.drawImage(this.cv12,0,0);
-        ctx.drawImage(this.cv13,0,0);
+    var tmp;
+    switch(typeof flag){
+    case "number":
+        tmp=flag;
         break;
+    case "string":
+        tmp=wpbd.flags[flag];
+        break;
+    default:
+        tmp=undefined;
     }
-    this.flag=3;
+    if(tmp===undefined){
+        return;
+    }
+    this.flag|=tmp;
+},
+update:function(flag){
+    if(flag==undefined){
+        flag=-1;
+    }
+    console.debug(flag+" "+this.flag);
+    if(this.flag&1&flag){
+        console.debug("updateCondition");
+        this.updateCondition();
+        this.flag|=14;
+    }
+    if(this.flag&2&flag){
+        this.updateBridge();
+        this.flag|=12;
+    }
+    if(this.flag&4&flag){
+        this.updateAnalyze();
+        this.flag|=8;
+    }
+    if(this.flag&8&flag){
+        this.updateSelect();
+    }
+    ctx=this.cv1.getContext("2d");
+    ctx.drawImage(this.cv11,0,0);
+    ctx.drawImage(this.cv12,0,0);
+    ctx.drawImage(this.cv13,0,0);
+    this.flag&=~flag;
 },
 updateCondition:function(){
     this.cv1.width=this.cv1.offsetWidth;
@@ -181,6 +209,14 @@ updateBridge:function(){
         tbody.append(wpbdg_memberrow(m));
     });
     this.membertable.trigger("update");
+},
+updateAnalyze:function(){
+    var members=this.bridge.members;
+    this.membertable.children("tbody").children().each(function(i,tr){
+        var c=$(tr).children();
+        c[6].innerText=members[c[0].innerText].compressionForceStrengthRatio.toFixed(2);
+        c[7].innerText=members[c[0].innerText].tensionForceStrengthRatio.toFixed(2);
+    });
 },
 updateSelect:function(){
     ///////////////

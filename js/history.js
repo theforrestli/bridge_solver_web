@@ -51,6 +51,7 @@ redo:function(){
     wpbd_manager_add(this.bridge.members,order.ma);
     wpbd_manager_exchange(this.bridge.members,order.mc);
     wpbd_manager_remove(this.bridge.members,order.md);
+    wpbdg.updateFlag("bridge");
 },
 undo:function(){
     if(this.ptr.prev==null){
@@ -58,10 +59,13 @@ undo:function(){
     }
     this.ptr=this.ptr.prev;
     var order=this.ptr.order;
-    wpbd_manager_add(this.bridge.joints,order.j2);
-    wpbd_manager_add(this.bridge.members,order.m2);
-    wpbd_manager_remove(this.bridge.members,order.m1);
-    wpbd_manager_remove(this.bridge.joints,order.j1);
+    wpbd_manager_add(this.bridge.joints,order.jd);
+    wpbd_manager_exchange(this.bridge.joints,order.jc);
+    wpbd_manager_remove(this.bridge.joints,order.ja);
+    wpbd_manager_add(this.bridge.members,order.md);
+    wpbd_manager_exchange(this.bridge.members,order.mc);
+    wpbd_manager_remove(this.bridge.members,order.ma);
+    wpbdg.updateFlag("bridge");
 },
 undoable:function(){
     return this.ptr.prev!=null;
