@@ -25,5 +25,21 @@ function wpbdg_analyze(){
     wpbdg.update();
 }
 function wpbdg_delete(){
+    var order=wpbdg.bridge.tryDelete();
+    wpbdg.manager.doOrder(order);
+    wpbdg.update();
+}
+function wpbdg_addjoint(){
     //TODO
+}
+function wpbdg_addmember(){
+    var mt=wpbdg.mt_select.val();
+    var cs=wpbdg.cs_select.val();
+    var wd=wpbdg.wd_select.val();
+    if(mt==-1||cs==-1||wd==-1){
+        return;
+    }
+    var order=wpbdg.bridge.tryAddMember(mt,cs,wd);
+    wpbdg.manager.doOrder(order);
+    wpbdg.update();
 }

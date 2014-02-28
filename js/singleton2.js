@@ -29,6 +29,8 @@ function wpbdg_singleton(){
     $("#wpbd_redo").on("click",wpbdg_redo);
     $("#wpbd_analyze").on("click",wpbdg_analyze);
     $("#wpbd_delete").on("click",wpbdg_delete);
+    $("#wpbd_addjoint").on("click",wpbdg_addjoint);
+    $("#wpbd_addmember").on("click",wpbdg_addmember);
 
     //memberlist
     f.membertable=$("#wpbd_membertable");
@@ -215,6 +217,7 @@ updateAnalyze:function(){
         c[6].innerText=members[c[0].innerText].compressionForceStrengthRatio.toFixed(2);
         c[7].innerText=members[c[0].innerText].tensionForceStrengthRatio.toFixed(2);
     });
+    this.membertable.trigger("update");
 },
 updateSelect:function(){
     ///////////////

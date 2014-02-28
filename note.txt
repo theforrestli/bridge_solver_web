@@ -8,7 +8,13 @@ complete bridge modify function
 
 enable/disable button
 implement preference
+sort not working perfectly
+width of buttons are changing, which will cause size of canvas to be inproper.
+disable default behavior on buttons (double click should not enlarge the webpage)
 
+
+--- assertion ---
+manager belongs to wpbdg
 
 
 --- original button ---

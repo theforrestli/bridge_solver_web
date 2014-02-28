@@ -117,6 +117,14 @@ tryAddJoint:function(p){
     this.deselectAll();
     return wpbd_order_new([wpbd_joint_new(this.joints.length,p.x,p.y,false)],[],[],[],[],[]);
 },
+tryDelete:function(){
+    var joints=this.joints.filter(function(j){return j.selected&&!j.fixed;});
+    var members=this.members.filter(function(m){return m.selected||joints.indexOf(m.jointA)!=-1||joints.indexOf(m.jointB)!=-1;});
+    if(joints.length==0&&members.length==0){
+        return null;
+    }
+    return wpbd_order_new([],joints,[],[],members,[],[]);
+},
 //TODO less code?
 //hard coded
 checkMemberWithPier:function(m){
@@ -266,8 +274,7 @@ getBoxEntities:function(x1,y1,x2,y2){
         y1=y2;
         y2=tmp;
     }
-    console.debug("box: "+x1+" "+y1+" "+x2+" "+y2);
-    var debug=""
+    var debug="";
     var f=this.members.filter(function(m){
         var x=(m.jointB.x+m.jointA.x)/2;
         var y=(m.jointB.y+m.jointA.y)/2;
