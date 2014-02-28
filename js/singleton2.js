@@ -25,9 +25,12 @@ function wpbdg_singleton(){
 
     //memberlist
     f.membertable=$("#wpbd_membertable");
+    var tmp=Hammer(f.membertable.children("tbody")[0]);
+    tmp.on("doubletap", wpbdg_doubletap);
+
     //TODO test
     f.bridge.members.forEach(function(m){
-        f.membertable.append(wpbdg_memberrow(m));
+        f.membertable.children("tbody").append(wpbdg_memberrow(m));
     });
     f.membertable.tablesorter();
 
@@ -176,7 +179,7 @@ updateBridge:function(){
     this.bridge.members.forEach(function(m){
         tbody.append(wpbdg_memberrow(m));
     });
-    this.membertable.tablesorter();
+    this.membertable.trigger("update");
 },
 updateSelect:function(){
     ///////////////
