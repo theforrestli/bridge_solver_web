@@ -27,6 +27,7 @@ function wpbdg_singleton(){
     f.membertable=$("#wpbd_membertable");
     var tmp=Hammer(f.membertable.children("tbody")[0]);
     tmp.on("doubletap", wpbdg_doubletap);
+    tmp.on("tap", wpbdg_tap);
 
     //TODO test
     f.bridge.members.forEach(function(m){

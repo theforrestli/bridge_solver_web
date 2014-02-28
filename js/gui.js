@@ -25,7 +25,6 @@ function wpbdg_getEntity(){
     
 }
 function wpbdg_tap(e){
-    console.debug("tap");
     if(e.srcElement==wpbdg.cv1){
         wpbdg.updateNewP(e);
         var element=wpbdg.bridge.getNearestEntity(wpbdg.newP,2);  
@@ -35,11 +34,10 @@ function wpbdg_tap(e){
     if(element!=null){
         element.selected^=true;
         wpbdg.updateFlag(2);
-        wpbdg.update();
     }
+    wpbdg.update();
 }
 function wpbdg_doubletap(e){
-    console.debug("doubletap");
     if(e.srcElement==wpbdg.cv1){
         wpbdg.updateNewP(e);
         var element=wpbdg.bridge.getNearestEntity(wpbdg.newP,2);  
@@ -47,11 +45,8 @@ function wpbdg_doubletap(e){
         var element=wpbdg.bridge.members[wpbdg_get_row_index(e.srcElement)];
     }
     wpbdg.bridge.deselectAll();
-    if(element!=null){
-        element.selected=true;
-    }
     wpbdg.updateFlag(2);
-    wpbdg.update();
+    //invoke wpbdg_tap
 }
 function wpbdg_release(e){
     if(wpbdg.drag){
