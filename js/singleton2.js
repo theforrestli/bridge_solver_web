@@ -105,8 +105,8 @@ updateNewP:function (e){
 },
 updateDeltaP:function (e){
     var rect=this.cv1.getBoundingClientRect();
-    this.deltaP.x=e.gesture.deltaX/rect.width*this.cv1.width*this.transform.r/5;
-    this.deltaP.y=-e.gesture.deltaY/rect.height*this.cv1.height*this.transform.r/5;
+    this.deltaP.x=e.gesture.deltaX/rect.width*this.cv1.width*this.transform.r;
+    this.deltaP.y=-e.gesture.deltaY/rect.height*this.cv1.height*this.transform.r;
 },
 updateFlag:function(flag){
     var tmp;
@@ -129,9 +129,7 @@ update:function(flag){
     if(flag==undefined){
         flag=-1;
     }
-    console.debug(flag+" "+this.flag);
     if(this.flag&1&flag){
-        console.debug("updateCondition");
         this.updateCondition();
         this.flag|=14;
     }
@@ -339,7 +337,6 @@ debug:function(){
     this.cv12.width=this.cv1.width;
     this.cv12.height=this.cv1.height;
     var ctx=this.cv12.getContext("2d");
-    console.debug(this.transform);
     ctx.translate(-this.transform.dx,-this.transform.dy);
     ctx.scale(1/this.transform.r,-1/this.transform.r);
 

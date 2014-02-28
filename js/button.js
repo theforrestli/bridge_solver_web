@@ -21,6 +21,8 @@ function wpbdg_analyze(){
         m.compressionForceStrengthRatio=wpbdg.result.maxMemberCompressiveForces[i]/wpbd_compressiveStrength(m.material,m.shape,m.getLength());
         m.tensionForceStrengthRatio=wpbdg.result.maxMemberTensileForces[i]/wpbd_tensileStrength(m.material, m.shape);
     }
+    wpbdg.updateFlag("analyze");
+    wpbdg.update();
 }
 function wpbdg_delete(){
     //TODO

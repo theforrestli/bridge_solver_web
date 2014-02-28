@@ -52,12 +52,12 @@ function wpbdg_release(e){
             wpbdg.bridge.getBoxEntities(x,y,x-wpbdg.deltaP.x,y-wpbdg.deltaP.y).forEach(function(e){
                 e.selected=true;
             });
-            wpbdg.updateFlag("select");
         }else{
             //TODO move joint
             var order=wpbdg.bridge.tryMove(wpbdg.deltaP);
             wpbdg.manager.doOrder(order);
         }
+        wpbdg.updateFlag("select");
     }
     wpbdg.deltaP.x=0;
     wpbdg.deltaP.y=0;
