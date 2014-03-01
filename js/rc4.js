@@ -21,25 +21,6 @@ function wpbd_setup_rc4(key){
     state.y=y;
     return state;
 }
-unsigned long endecrypt_rc4_state(unsigned char *buf, unsigned long len, TRC4State *state)
-{
-    int x=state->x;
-    int y=state->y;
-    int i;
-    unsigned char *s=(unsigned char*)state;
-    unsigned char tmp;
-    for(i=0;i<len;i++){
-        x=(x+1)&255;
-        y=(y+s[x])&255;
-        tmp=s[x];
-        s[x]=s[y];
-        s[y]=tmp;
-        buf[i]^=s[(s[x]+s[y])&255];
-    }
-    state->x=x;
-    state->y=y;
-    return 0;
-}
 function wpbd_endecrypt_rc4_state(buf,len,state){
     buf=buf.split("");
     var x=state.x;
