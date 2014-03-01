@@ -6,6 +6,8 @@
     <script src="include/jquery.mobile-1.4.1.min.js"></script>
     <script src="include/hammer.min.js"></script>
     <script src="include/jquery.tablesorter.min.js"></script>
+
+    <script src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="cmuvkomczhio3p4"></script>
     <link href= "include/jquery.mobile-1.4.1.min.css" media="screen" rel="stylesheet" type="text/css" />
     <link href= "styles/styles.css" media="screen" rel="stylesheet" type="text/css" />
     <title>jiaqi's test page</title>
@@ -14,9 +16,9 @@
     <div data-role="page" id="wpbd_page">
         <div id="wpbd_header" data-role="header">
             <div data-role="controlgroup" data-type="horizontal" data-mini="true" class="ui-btn-inline" >
-                  <a href="#" class="ui-btn">new</a>
-                  <a href="#" class="ui-btn">load</a>
-                  <a href="#" class="ui-btn">save</a>
+                  <a href="#" class="ui-btn" id="wpbd_new">new</a>
+                  <a href="#" class="ui-btn" id="wpbd_load">load</a>
+                  <a href="#" class="ui-btn" id="wpbd_save">save</a>
             </div><!--
             --><div data-role="controlgroup" data-type="horizontal" data-mini="true" class="ui-btn-inline" >
                 <a href="#" class="ui-btn" id="wpbd_analyze">analyze</a>
@@ -96,6 +98,8 @@
     <script src="js/analysis.js"></script>
     <script src="js/cost.js"></script>
     <script src="js/button.js"></script>
+    <script src="js/rc4.js"></script>
+
     <script>
     tmp={};
     input="2014205320000011 19  0  0 16  0 32  0 48  0 64  0 80  0  8 16 24 16 40 17 56 16 72 16 1 71118 7 81116 8 91118 91011181011111611 61118 6 50112 5 420 5 4 320 5 3 220 5 2 10112 7 220 5 2 81116 8 30112 3 90112 9 40112 410011210 51116 51120 50.40|0.00|0.31|0.00|0.46|0.00|0.46|0.00|0.31|0.00|0.40|0.00|0.00|0.09|0.00|0.21|0.00|0.26|0.00|0.21|0.00|0.09|0.00|0.20|0.24|0.00|0.00|0.12|0.08|0.04|0.08|0.04|0.00|0.12|0.24|0.00|0.00|0.20||00007B-|1|2.000|";

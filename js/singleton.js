@@ -214,6 +214,7 @@ function wpbd_singleton(){
         "analyze":4,
         "select":8
     };
+    f.key="QuenchHollow";
     return f;
 }
 function wpbd_material_get(index){

@@ -26,6 +26,10 @@ function wpbdg_singleton(){
     });
     
     //buttons
+
+    $("#wpbd_new").on("click",wpbdg_undo);
+    $("#wpbd_load").on("click",wpbdg_load);
+    $("#wpbd_save").on("click",wpbdg_save);
     $("#wpbd_undo").on("click",wpbdg_undo);
     $("#wpbd_redo").on("click",wpbdg_redo);
     $("#wpbd_analyze").on("click",wpbdg_analyze);
