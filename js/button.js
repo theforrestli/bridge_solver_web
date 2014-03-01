@@ -11,6 +11,7 @@ function wpbdg_load(){
                 type: 'get',
                 async: false,
                 success: function(html) {
+                    tmp2=html;
                     alert(wpbd_endecrypt_rc4(html,files[0].bytes));
                 }
             });
