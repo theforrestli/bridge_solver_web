@@ -34,7 +34,7 @@ function wpbd_endecrypt_rc4_state(buf,len,state){
         tmp=s[x];
         s[x]=s[y];
         s[y]=tmp;
-        buf[i]=String.fromCharCode(buf.charCodeAt(i)^s[(s[x]+s[y])&255]);
+        buf[i]=String.fromCharCode(buf[i].charCodeAt(0)^s[(s[x]+s[y])&255]);
     }
     state.x=x;
     state.y=y;
