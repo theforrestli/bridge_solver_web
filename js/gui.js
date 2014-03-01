@@ -99,8 +99,8 @@ function wpbdg_memberrow(m){
         .append($("<td>").text(m.shape.width))
         .append($("<td>").text(len.toPrecision(3)))
         .append($("<td>").text((len*m.shape.inverseRadiusOfGyration).toPrecision(4)))
-        .append($("<td>").text(0))
-        .append($("<td>").text(0));
+        .append($("<td>").text(0).addClass("compression"))
+        .append($("<td>").text(0).addClass("tension"));
     return f;
 }
 function wpbdg_get_row_index(e){

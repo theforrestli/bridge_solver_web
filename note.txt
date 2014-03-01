@@ -1,5 +1,4 @@
 --- TASK ---
-bridge delete function
 implement isLegalPosition
 display member stats
 display report
@@ -15,6 +14,8 @@ disable default behavior on buttons (double click should not enlarge the webpage
 
 --- assertion ---
 manager belongs to wpbdg
+bridge doesn't know wpbdg
+
 
 
 --- original button ---

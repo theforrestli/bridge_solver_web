@@ -7,6 +7,7 @@ function wpbdg_singleton(){
     f.bridge=wpbd_bridge_new();
     f.manager=wpbd_manager_new(f.bridge);
     f.result=wpbd_analyze(f.bridge,null);
+    f.cost=wpbd_cost(f.bridge);
 
     //settings
     f.gridSize=0.25;
@@ -35,6 +36,7 @@ function wpbdg_singleton(){
     //memberlist
     f.membertable=$("#wpbd_membertable");
     var tbody=f.membertable.children("tbody");
+    Hammer(f.membertable[0],{prevent_default:true});
     var tmp=Hammer(tbody[0]);
     tmp.on("doubletap", wpbdg_doubletap);
     tmp.on("tap", wpbdg_tap);
@@ -163,6 +165,10 @@ updateCondition:function(){
     ctx.fillRect(0,0,this.cv1.width,this.cv1.height);
 },
 updateBridge:function(){
+    //update data
+    this.cost=wpbd_cost(this.bridge);
+
+    //update canvas
     this.cv12.width=this.cv1.width;
     this.cv12.height=this.cv1.height;
     var ctx=this.cv12.getContext("2d");
@@ -202,6 +208,7 @@ updateBridge:function(){
         ctx.fill();
     });
 
+    //update membertable
     var tbody=this.membertable.children("tbody");
     tbody.text("");
 
@@ -209,13 +216,30 @@ updateBridge:function(){
         tbody.append(wpbdg_memberrow(m));
     });
     this.membertable.trigger("update");
+
+    //update cost
+    $("#wpbd_cost").text("$"+this.cost.totalCost.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));
 },
 updateAnalyze:function(){
     var members=this.bridge.members;
     this.membertable.children("tbody").children().each(function(i,tr){
         var c=$(tr).children();
-        c[6].innerText=members[c[0].innerText].compressionForceStrengthRatio.toFixed(2);
-        c[7].innerText=members[c[0].innerText].tensionForceStrengthRatio.toFixed(2);
+        var tmp=members[c[0].innerText].compressionForceStrengthRatio.toFixed(2);
+        c[6].innerText=tmp;
+        //TODO is equal fine?
+        if(tmp>1){
+            $(c[6]).addClass("compressionFail");
+        }else{
+            $(c[6]).removeClass("compressionFail");
+        }
+        tmp=members[c[0].innerText].tensionForceStrengthRatio.toFixed(2);
+        c[7].innerText=tmp;
+        //TODO is equal fine?
+        if(tmp>1){
+            $(c[7]).addClass("tensionFail");
+        }else{
+            $(c[7]).removeClass("tensionFail");
+        }
     });
     this.membertable.trigger("update");
 },

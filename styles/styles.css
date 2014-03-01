@@ -35,6 +35,12 @@ html, body {
 #wpbd_membertable tr.selected{
     background-color:#88F;
 }
+#wpbd_membertable td.compressionFail{
+    background-color:#F22;
+}
+#wpbd_membertable td.tensionFail{
+    background-color:#22F;
+}
 /*
 table.testc1 td{
   font-family:monospace;
