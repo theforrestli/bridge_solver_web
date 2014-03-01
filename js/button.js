@@ -7,15 +7,6 @@ function wpbdg_load(){
         // Required. Called when a user selects an item in the Chooser.
         success: function(files) {
             $.ajax({
-                    url: link,
-                data: "",beforeSend: function( xhr ) {
-                        xhr.overrideMimeType( "text/plain; charset=x-user-defined" );xhr.responseType = "arraybuffer";},
-                success: function(data) {file=data;
-                            console.debug(data.length);
-                                },
-                error: function(a, b, c) {console.debug("error:"+a+" "+b+" "+c);}
-            });
-            $.ajax({
                 url: files[0].link,
                 type: 'get',
                 async: false,
