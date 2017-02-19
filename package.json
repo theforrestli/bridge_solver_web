@@ -1,0 +1,47 @@
+{
+  "name": "bridge_solver_web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "engines": {
+    "node": ">=5.0.0",
+    "npm": "~3.3.6"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lijiaqigreat/bridge_solver_web.git"
+  },
+  "keywords": [
+    "bridge"
+  ],
+  "author": "Forrest Li",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lijiaqigreat/bridge_solver_web/issues"
+  },
+  "homepage": "https://github.com/lijiaqigreat/bridge_solver_web#readme",
+  "devDependencies": {
+    "babelify": "^6.2.0",
+    "browser-sync": "^2.8.2",
+    "browserify": "^11.0.1",
+    "expect.js": "^0.3.1",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^5.2.0",
+    "gulp-browserify": "^0.5.1",
+    "gulp-ext-replace": "^0.2.0",
+    "gulp-less": "^3.0.3",
+    "gulp-mustache": "^1.1.1",
+    "gulp-shell": "^0.4.2",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-uglify": "^1.2.0",
+    "gulp-uncss": "^1.0.3",
+    "underscore": "^1.8.3",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "bootstrap": "^3.3.5",
+    "watchify": "^3.3.1"
+  }
+}
