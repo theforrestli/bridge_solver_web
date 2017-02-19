@@ -1,7 +1,7 @@
 /**
  * singleton should be constant
  */
-function wpbd_singleton(){
+window.wpbd_singleton = () => {
   f={};
   f.anchorOffset = 8.0;
   f.panelSizeWorld = 4.0;
@@ -217,13 +217,13 @@ function wpbd_singleton(){
     f.key="QuenchHollow";
     return f;
 }
-function wpbd_material_get(index){
+window.wpbd_material_get = (index) => {
     return wpbd.materials[index];
 }
-function wpbd_shape_get(sectionIndex,sizeIndex){
+window.wpbd_shape_get = (sectionIndex,sizeIndex) => {
     return wpbd.shapes[sectionIndex][sizeIndex];
 }
-function wpbd_shape_new(section,sizeIndex,name,width,area,moment,inverseRadiusOfGyration,thickness){
+window.wpbd_shape_new = (section,sizeIndex,name,width,area,moment,inverseRadiusOfGyration,thickness) => {
     return {
         "section":section,
         "sizeIndex":sizeIndex,
@@ -234,7 +234,7 @@ function wpbd_shape_new(section,sizeIndex,name,width,area,moment,inverseRadiusOf
         "inverseRadiusOfGyration":Math.sqrt(area/moment),
         "thickness":thickness};
 }
-function wpbd_compressiveStrength(material,shape,length){
+window.wpbd_compressiveStrength = (material,shape,length) => {
     var Fy = material.Fy;
     var area = shape.area;
     var E = material.E;
@@ -244,10 +244,10 @@ function wpbd_compressiveStrength(material,shape,length){
         wpbd.compressionResistanceFactor * Math.pow(0.66, lambda) * Fy * area : 
         wpbd.compressionResistanceFactor * 0.88 * Fy * area / lambda;
 }
-function wpbd_tensileStrength(material, shape) {
+window.wpbd_tensileStrength = (material, shape) =>  {
     return wpbd.tensionResistanceFactor * material.Fy * shape.area;
 }
-function wpbd_material_new(index,name,shortName,E,Fy,density,cost){
+window.wpbd_material_new = (index,name,shortName,E,Fy,density,cost) => {
     return {
         "index":index,
         "name":name,
@@ -257,6 +257,6 @@ function wpbd_material_new(index,name,shortName,E,Fy,density,cost){
         "density":density,
         "cost":cost};
 }
-function wpbd_round(a,n){
+window.wpbd_round = (a,n) => {
     return Math.round(a/n)*n;
 }

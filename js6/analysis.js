@@ -1,5 +1,5 @@
 
-function wpbd_analyze(bridge,failureStatus){
+window.wpbd_analyze = (bridge,failureStatus) => {
     var f={};
     f.bridge=bridge;
     var condition=bridge.condition;

@@ -1,5 +1,5 @@
 
-function wpbdg_update_geometry() {
+window.wpbdg_update_geometry = () =>  {
     /* Some orientation changes leave the scroll position at something
      * that isn't 0,0. This is annoying for user experience. */
     scroll(0, 0);
@@ -20,7 +20,7 @@ function wpbdg_update_geometry() {
     wpbdg.update();
 }
 
-function wpbdg_tap(e){
+window.wpbdg_tap = (e) => {
     if(e.srcElement==wpbdg.cv1){
         wpbdg.updateNewP(e);
         var element=wpbdg.bridge.getNearestEntity(wpbdg.newP,2);  
@@ -33,7 +33,7 @@ function wpbdg_tap(e){
     }
     wpbdg.update();
 }
-function wpbdg_doubletap(e){
+window.wpbdg_doubletap = (e) => {
     if(e.srcElement==wpbdg.cv1){
         wpbdg.updateNewP(e);
         var element=wpbdg.bridge.getNearestEntity(wpbdg.newP,2);  
@@ -44,7 +44,7 @@ function wpbdg_doubletap(e){
     wpbdg.updateFlag("select");
     //invoke wpbdg_tap
 }
-function wpbdg_release(e){
+window.wpbdg_release = (e) => {
     if(wpbdg.drag){
         if(wpbdg.hold){
             var x=wpbdg.newP.x;
@@ -65,14 +65,14 @@ function wpbdg_release(e){
     wpbdg.drag=false;
     wpbdg.update();
 }
-function wpbdg_hold(e){
+window.wpbdg_hold = (e) => {
     wpbdg.hold=true;
     wpbdg.bridge.deselectAll();
     wpbdg.updateNewP(e);
     wpbdg.updateFlag("select");
     wpbdg.update();
 }
-function wpbdg_drag(e){
+window.wpbdg_drag = (e) => {
     wpbdg.drag=true;
     wpbdg.updateNewP(e);
     wpbdg.updateDeltaP(e);
@@ -86,7 +86,7 @@ function wpbdg_drag(e){
     wpbdg.updateFlag("select");
     wpbdg.update();
 }
-function wpbdg_memberrow(m){
+window.wpbdg_memberrow = (m) => {
     var a=m.jointA;
     var b=m.jointB;
     var dx=b.x-a.x;
@@ -103,7 +103,7 @@ function wpbdg_memberrow(m){
         .append($("<td>").text(0).addClass("tension"));
     return f;
 }
-function wpbdg_get_row_index(e){
+window.wpbdg_get_row_index = (e) => {
     var tbody=wpbdg.membertable.children("tbody")[0];
     if(e==tbody){
         return -1;

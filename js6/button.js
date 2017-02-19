@@ -1,7 +1,7 @@
-function wpbdg_new(){
+window.wpbdg_new = () => {
 
 }
-function wpbdg_load(){
+window.wpbdg_load = () => {
     options = {
 
         // Required. Called when a user selects an item in the Chooser.
@@ -43,24 +43,24 @@ function wpbdg_load(){
     console.debug("choose");
     Dropbox.choose(options);
 }
-function wpbdg_save(){
+window.wpbdg_save = () => {
 
 }
-function wpbdg_undo(){
+window.wpbdg_undo = () => {
     wpbdg.manager.undo();
     if(!wpbdg.manager.undoable()){
         $("wpbd_undo").button("disable");
     }
     wpbdg.update();
 }
-function wpbdg_redo(){
+window.wpbdg_redo = () => {
     wpbdg.manager.redo();
     if(!wpbdg.manager.redoable()){
         $("wpbd_redo").button("disable");
     }
     wpbdg.update();
 }
-function wpbdg_analyze(){
+window.wpbdg_analyze = () => {
     wpbdg.result=wpbd_analyze(wpbdg.bridge,null);
     var members=wpbdg.bridge.members;
     var size=members.length;
@@ -72,15 +72,15 @@ function wpbdg_analyze(){
     wpbdg.updateFlag("analyze");
     wpbdg.update();
 }
-function wpbdg_delete(){
+window.wpbdg_delete = () => {
     var order=wpbdg.bridge.tryDelete();
     wpbdg.manager.doOrder(order);
     wpbdg.update();
 }
-function wpbdg_addjoint(){
+window.wpbdg_addjoint = () => {
     //TODO
 }
-function wpbdg_addmember(){
+window.wpbdg_addmember = () => {
     var mt=wpbdg.mt_select.val();
     var cs=wpbdg.cs_select.val();
     var wd=wpbdg.wd_select.val();

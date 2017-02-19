@@ -3,7 +3,7 @@
  * condition should only be modified by get_from_code method
  * this will return a valid bridge
  */
-function wpbd_bridge_new(){
+window.wpbd_bridge_new = () => {
     var f={};
     f.listener=[];
     f.joints=[];
@@ -17,7 +17,7 @@ function wpbd_bridge_new(){
     return f;
 }
 
-wpbd_bridge_prototype={
+window.wpbd_bridge_prototype={
 //hard coded
 "parseByte":function (s){
     var f=this;
@@ -290,7 +290,7 @@ getBoxEntities:function(x1,y1,x2,y2){
 
 };//end of prototype
     
-function wpbd_scanUnsigned(width,what,buf){
+window.wpbd_scanUnsigned = (width,what,buf) => {
     //throws IOException
     /*
     val = 0;
@@ -318,12 +318,12 @@ function wpbd_scanUnsigned(width,what,buf){
     return f;
 }
 
-function wpbd_writeNumber(width,number){
+window.wpbd_writeNumber = (width,number) => {
     var f=""+number;
     return Array(width-f.length+1).join(" ")+f;
 }
 
-function wpbd_scanInt(width,what,buf){
+window.wpbd_scanInt = (width,what,buf) => {
     //throws IOException
     /*
     var val = 0;
@@ -355,7 +355,7 @@ function wpbd_scanInt(width,what,buf){
     }
     return f;
 }
-function wpbd_scanToDelimiter(what,buf){
+window.wpbd_scanToDelimiter = (what,buf) => {
     var readPtrOld=buf.readPtr;
     while (buf.readBuf[buf.readPtr] != "|")
     {
@@ -365,11 +365,11 @@ function wpbd_scanToDelimiter(what,buf){
     buf.readPtr += 1;
     return f;
 }
-function wpbd_joint_new(i,x,y,fixed){
+window.wpbd_joint_new = (i,x,y,fixed) => {
     return {"index":i,"x":x,"y":y,"fixed":fixed,"selected":false};
 }
 //TODO where is strength ratio?
-function wpbd_member_new(i,j1,j2,material,shape){
+window.wpbd_member_new = (i,j1,j2,material,shape) => {
     return {
         "index":i,
         "jointA":j1,

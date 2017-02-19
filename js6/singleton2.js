@@ -1,5 +1,5 @@
 
-function wpbdg_singleton(){
+window.wpbdg_singleton = () => {
     var f={};
     jQuery.extend(f,wpbdg_prototype);
 
@@ -73,7 +73,7 @@ function wpbdg_singleton(){
     tmp.on("tap",wpbdg_tap);
     return f;
 }
-wpbdg_prototype={
+window.wpbdg_prototype={
 update_transform:function (){
     var condition=this.bridge.condition;
     var rect1=wpbd_condition_getBounding(condition);

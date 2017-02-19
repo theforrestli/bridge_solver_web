@@ -1,5 +1,5 @@
 
-function wpbd_manager_new(bridge){
+window.wpbd_manager_new = (bridge) => {
     var f={
         "bridge":bridge,
         "ptr":{"next":null,"prev":null,"order":null}};
@@ -37,7 +37,7 @@ function wpbd_manager_remove(list,es){
         }
     });
 }
-wpbd_manager_prototype={
+window.wpbd_manager_prototype={
 
 redo:function(){
     var order=this.ptr.order;
@@ -83,6 +83,6 @@ doOrder:function(order){
 }
 
 };
-function wpbd_order_new(ja,jd,jc,ma,md,mc){
+window.wpbd_order_new = (ja,jd,jc,ma,md,mc) => {
     return {"ja":ja,"jd":jd,"jc":jc,"ma":ma,"md":md,"mc":mc};
 }

@@ -1,5 +1,5 @@
 
-function wpbd_cost(bridge){
+window.wpbd_cost = (bridge) => {
     /*
     materialShapePairs.clear();
     materialSectionPairs.clear();

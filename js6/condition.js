@@ -1,6 +1,6 @@
 
 //hard coded
-function wpbd_condition_get_from_code(f,codeLong){
+window.wpbd_condition_get_from_code = (f,codeLong) => {
     f.tag=wpbd.conditions[codeLong];
     if(f.tag===undefined){
         f.tag=wpbd.fromKeyCodeTag;
@@ -194,7 +194,7 @@ function wpbd_condition_get_from_code(f,codeLong){
     return f;
 }
 //TODO deprecated
-function wpbd_condition_getBounding(condition){
+window.wpbd_condition_getBounding = (condition) => {
     var padding=2;
     var f={};
     var tmp=condition.leftAnchorageJointIndex;
@@ -216,7 +216,7 @@ function wpbd_condition_getBounding(condition){
     return f;
 }
 //hard coded
-function wpbd_condition_getCodeError(code){
+window.wpbd_condition_getCodeError = (code) => {
     if (code === undefined) {
       return -1;
     }
