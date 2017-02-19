@@ -152,7 +152,7 @@ update:function(flag){
     if(this.flag&8&flag){
         this.updateSelect();
     }
-    ctx=this.cv1.getContext("2d");
+    var ctx=this.cv1.getContext("2d");
     ctx.drawImage(this.cv11,0,0);
     ctx.drawImage(this.cv12,0,0);
     ctx.drawImage(this.cv13,0,0);

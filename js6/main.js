@@ -1,0 +1,10 @@
+require('./singleton');
+require('./singleton2');
+require('./gui');
+require('./history');
+require('./condition');
+require('./bridge');
+require('./analysis');
+require('./cost');
+require('./button');
+require('./rc4');

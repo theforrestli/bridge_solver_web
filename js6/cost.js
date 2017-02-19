@@ -22,7 +22,7 @@ window.wpbd_cost = (bridge) => {
     costs.notes = null;
     return costs;
     */
-    f={};
+    const f={};
     var msps=[];
     var mcps=[];
     bridge.members.forEach(function(m){

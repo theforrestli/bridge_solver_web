@@ -2,7 +2,7 @@
  * singleton should be constant
  */
 window.wpbd_singleton = () => {
-  f={};
+  const f={};
   f.anchorOffset = 8.0;
   f.panelSizeWorld = 4.0;
   f.gapDepth = 24.0;

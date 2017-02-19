@@ -292,7 +292,7 @@ window.wpbd_condition_getCodeError = (code) => {
 
 
 
-wpbd_condition_prototype={
+window.wpbd_condition_prototype={
 
 //TODO refactor
 isLegalPosition:function(p){
