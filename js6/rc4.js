@@ -43,7 +43,7 @@ window.wpbd_endecrypt_rc4_state = (buf,len,state) => {
     return buf.join("");
 }
 window.wpbd_endecrypt_rc4 = (buf,len) => {
-    state=wpbd_setup_rc4(wpbd.key);
+    var state=wpbd_setup_rc4(wpbd.key);
     return wpbd_endecrypt_rc4_state(buf, len, state);
 }
 

@@ -5,7 +5,8 @@ const wpbd = require('./singleton');
  * condition should only be modified by get_from_code method
  * this will return a valid bridge
  */
-window.wpbd_bridge_new = () => {
+window.wpbd_bridge_new = (s) => {
+    s = s || wpbd.defaultBridgeString;
     var f={};
     f.listener=[];
     f.joints=[];
@@ -15,7 +16,7 @@ window.wpbd_bridge_new = () => {
     jQuery.extend(f.condition,wpbd_condition_prototype);
     jQuery.extend(f,wpbd_bridge_prototype);
     //load default bridge
-    f.parseByte(wpbd.defaultBridgeString);
+    f.parseByte(s);
     return f;
 }
 

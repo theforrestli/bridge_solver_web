@@ -1,6 +1,17 @@
 window.wpbdg_new = () => {
 
 }
+
+$("#file").on('change', function(){
+  var reader = new FileReader();
+
+  reader.onload = function(e) {
+      var rawData = reader.result;
+      var str = wpbd_endecrypt_rc4(rawData, rawData.size);
+  }
+
+  reader.readAsBinaryString(this.files[0]);
+});
 window.wpbdg_load = () => {
     const options = {
 
