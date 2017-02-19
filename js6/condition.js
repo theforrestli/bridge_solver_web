@@ -1,3 +1,5 @@
+const wpbd = require('./singleton');
+
 
 //hard coded
 window.wpbd_condition_get_from_code = (f,codeLong) => {

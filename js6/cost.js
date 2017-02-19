@@ -1,3 +1,4 @@
+const wpbd = require('./singleton');
 
 window.wpbd_cost = (bridge) => {
     /*
@@ -44,16 +45,16 @@ window.wpbd_cost = (bridge) => {
         }
         var i=null;
         mcps.forEach(function(mcp){
-            if(m.material==mcp.material&&m.shape.section==mcp.section){
+            if(m.material==mcp.material&&m.shape.sectionIndex==mcp.sectionIndex){
                 i=mcp;
             }
         });
         var weight=m.shape.area*m.material.density*m.getLength();
         if(i==null){
             mcps.push({
-                "material":m.material,
-                "section":m.shape.section,
-                "weight":weight
+                material: m.material,
+                sectionIndex: m.shape.sectionIndex,
+                weight: weight
             });
         }else{
             i.weight+=weight;
@@ -66,7 +67,7 @@ window.wpbd_cost = (bridge) => {
     var connectionCost=bridge.joints.length*wpbd.connectionFee;
     var mtlCost=0;
     mcps.forEach(function(mcp){
-        mtlCost+=mcp.weight*mcp.material.cost[mcp.section.index];
+        mtlCost+=mcp.weight*mcp.material.cost[mcp.sectionIndex];
     });
     f.totalCost=2*(mtlCost+connectionCost)+productCost+bridge.condition.totalFixedCost;
     return f;

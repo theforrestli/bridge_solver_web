@@ -1,3 +1,5 @@
+const wpbd = require('./singleton');
+
 
 window.wpbd_setup_rc4 = (key) => {
     var tmp,x,y;

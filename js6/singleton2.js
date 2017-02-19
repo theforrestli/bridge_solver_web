@@ -1,3 +1,4 @@
+const wpbd = require('./singleton');
 
 window.wpbdg_singleton = () => {
     var f={};
@@ -330,14 +331,14 @@ updateSelect:function(){
         }
         if(mt==-2){
             mt=m.material.index;
-            cs=m.shape.section.index;
+            cs=m.shape.sectionIndex;
             wd=m.shape.sizeIndex;
             return;
         }
         if(mt!=m.material.index){
             mt=-1;
         }
-        if(cs!=m.shape.section.index){
+        if(cs!=m.shape.sectionIndex){
             cs=-1;
         }
         if(wd!=m.shape.sizeIndex){

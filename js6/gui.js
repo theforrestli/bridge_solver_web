@@ -1,4 +1,4 @@
-
+const wpbd = require('./singleton');
 window.wpbdg_update_geometry = () =>  {
     /* Some orientation changes leave the scroll position at something
      * that isn't 0,0. This is annoying for user experience. */
@@ -95,7 +95,7 @@ window.wpbdg_memberrow = (m) => {
     var f=$("<tr>")
         .append($("<th>").text(m.index))
         .append($("<td>").text(m.material.shortName))
-        .append($("<td>").text(m.shape.section.shortName))
+        .append($("<td>").text(wpbd.crossSections[m.shape.sectionIndex].shortName))
         .append($("<td>").text(m.shape.width))
         .append($("<td>").text(len.toPrecision(3)))
         .append($("<td>").text((len*m.shape.inverseRadiusOfGyration).toPrecision(4)))

@@ -1,3 +1,5 @@
+const wpbd = require('./singleton');
+
 /*
  * joints, members, condition will not change reference 
  * condition should only be modified by get_from_code method
@@ -90,7 +92,7 @@ toString:function (){
     f+=wpbd_writeNumber(2,member.jointB.index+1);
 
     f+=wpbd_writeNumber(1,member.material.index);
-    f+=wpbd_writeNumber(1,member.shape.section.index);
+    f+=wpbd_writeNumber(1,member.shape.sectionIndex);
     f+=wpbd_writeNumber(2,member.shape.sizeIndex);
   });
   bridge.members.forEach(function(member){

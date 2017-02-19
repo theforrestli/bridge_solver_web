@@ -2,7 +2,7 @@ window.wpbdg_new = () => {
 
 }
 window.wpbdg_load = () => {
-    options = {
+    const options = {
 
         // Required. Called when a user selects an item in the Chooser.
         success: function(files) {

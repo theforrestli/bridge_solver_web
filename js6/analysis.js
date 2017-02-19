@@ -1,3 +1,4 @@
+const wpbd = require('./singleton');
 
 window.wpbd_analyze = (bridge,failureStatus) => {
     var f={};

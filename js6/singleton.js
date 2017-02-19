@@ -1,34 +1,81 @@
+const _ = require('underscore');
 /**
  * singleton should be constant
  */
-window.wpbd_singleton = () => {
-  const f={};
-  f.anchorOffset = 8.0;
-  f.panelSizeWorld = 4.0;
-  f.gapDepth = 24.0;
-  f.minOverhead = 8.0;
-  f.maxSlenderness = 300.0;
-  f.NDARD_TRUCK = 0;
-  f.HEAVY_TRUCK = 1;
-  f.MEDIUM_STRENGTH_DECK = 0;
-  f.HI_STRENGTH_DECK = 1;
-  f.maxJointCount = 100;
-  f.maxMemberCount = 200;
-  f.fromKeyCodeTag = "99Z";
-  f.excavationCostRate = 1.0;
-  f.anchorageCost = 6000.0;
-  f.deckCostPerPanelMedStrength = 4700.0;
-  f.deckCostPerPanelHiStrength = 5000.0;
-  f.standardAbutmentBaseCost = 5500.0;
-  f.standardAbutmentIncrementalCostPerDeckPanel = 500.0;
-  f.archIncrementalCostPerDeckPanel = 3600.0;
-  f.pierIncrementalCostPerDeckPanel = 4500.0;
-  f.pierBaseCost = 3000.0;
-  f.deckElevationIndexToExcavationVolume = [ 100000.0, 85000.0, 67000.0, 50000.0, 34000.0, 15000.0, 0.0 ];
-  f.deckElevationIndexToKeycodeAbutmentCosts = [ 7000.0, 7000.0, 7500.0, 7500.0, 8000.0, 8000.0, 8500.0 ];
-  f.underClearanceIndexToCost = [ -2000.0, 5400.0, 15000.0, 24400.0, 35500.0, 49700.0 ];
-  f.pierHeightToCost = [ 0.0, 2800.0, 5600.0, 8400.0, 11200.0, 14000.0, 16800.0 ];
-  f.conditions = {
+const widths = [
+  30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80,                /* 0 to 10 */
+  90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, /* 11 to 22 */
+  220, 240, 260, 280, 300,                                   /* 23 to 27 */
+  320, 340, 360, 400, 500                                    /* 28 to 32 */
+];
+
+const crossSections = [
+  {
+    name:"Solid Bar",
+    shortName:"Bar",
+    getShape(sectionIndex, sizeIndex, width){
+      const area = width*width * 1e-6;
+      const moment = width*width*width*width / 12 * 1e-12;
+      return {
+        sectionIndex: sectionIndex,
+        sizeIndex: sizeIndex,
+        name: `${width}x${width}`,
+        width: width,
+        area: area,
+        moment: moment,
+        inverseRadiusOfGyration: Math.sqrt(area/moment),
+        thickness: width,
+      }
+    }
+  },
+  {
+    name:"Hollow Tube",
+    shortName:"Tube",
+    getShape(sectionIndex, sizeIndex, width){
+      const thickness = Math.floor(Math.max(width / 20, 2));
+      const area = thickness*(width-thickness)* 4 * 1e-6;
+      const moment = (width*width*width*width - Math.pow(width - 2 * thickness,4)) / 12 * 1e-12;
+      return {
+        sectionIndex: sectionIndex,
+        sizeIndex: sizeIndex,
+        name: `${width}x${width}x${thickness}`,
+        width: width,
+        area: area,
+        moment: moment,
+        inverseRadiusOfGyration: Math.sqrt(area/moment),
+        thickness: thickness,
+      }
+    }
+  },
+];
+
+const wpbd = module.exports = {
+  anchorOffset: 8.0,
+  panelSizeWorld: 4.0,
+  gapDepth: 24.0,
+  minOverhead: 8.0,
+  maxSlenderness: 300.0,
+  NDARD_TRUCK: 0,
+  HEAVY_TRUCK: 1,
+  MEDIUM_STRENGTH_DECK: 0,
+  HI_STRENGTH_DECK: 1,
+  maxJointCount: 100,
+  maxMemberCount: 200,
+  fromKeyCodeTag: "99Z",
+  excavationCostRate: 1.0,
+  anchorageCost: 6000.0,
+  deckCostPerPanelMedStrength: 4700.0,
+  deckCostPerPanelHiStrength: 5000.0,
+  standardAbutmentBaseCost: 5500.0,
+  standardAbutmentIncrementalCostPerDeckPanel: 500.0,
+  archIncrementalCostPerDeckPanel: 3600.0,
+  pierIncrementalCostPerDeckPanel: 4500.0,
+  pierBaseCost: 3000.0,
+  deckElevationIndexToExcavationVolume: [ 100000.0, 85000.0, 67000.0, 50000.0, 34000.0, 15000.0, 0.0 ],
+  deckElevationIndexToKeycodeAbutmentCosts: [ 7000.0, 7000.0, 7500.0, 7500.0, 8000.0, 8000.0, 8500.0 ],
+  underClearanceIndexToCost: [ -2000.0, 5400.0, 15000.0, 24400.0, 35500.0, 49700.0 ],
+  pierHeightToCost: [ 0.0, 2800.0, 5600.0, 8400.0, 11200.0, 14000.0, 16800.0 ],
+  conditions: {
       "1110824000":"01A", "2110824000":"01B", "3110824000":"01C", "4110824000":"01D",
       "1101220000":"02A", "2101220000":"02B", "3101220000":"02C", "4101220000":"02D",
       "1091616000":"03A", "2091616000":"03B", "3091616000":"03C", "4091616000":"03D",
@@ -126,97 +173,57 @@ window.wpbd_singleton = () => {
       "1072408341":"95A", "2072408341":"95B", "3072408341":"95C", "4072408341":"95D",
       "1062804340":"96A", "2062804340":"96B", "3062804340":"96C", "4062804340":"96D",
       "1062804341":"97A", "2062804341":"97B", "3062804341":"97C", "4062804341":"97D",
-      "1053200331":"98A", "2053200331":"98B", "3053200331":"98C", "4053200331":"98D"};
+      "1053200331":"98A", "2053200331":"98B", "3053200331":"98C", "4053200331":"98D",
+  },
+  SHAPE_INCREASE_SIZE: 1,
+  SHAPE_DECREASE_SIZE: 2,
+  compressionResistanceFactor: 0.90,
+  tensionResistanceFactor: 0.95,
+  orderingFee: 1000.00,
+  widths: widths,
+  crossSections: _.map(crossSections, ({name, shortName}, index) => {
+    return {index, name, shortName};
+  }),
+  materials: [
+    {index: 0, name: "Carbon Steel",                  shortName: "CS",  E: 200000000, Fy: 250000, density: 7850, cost: [4.50, 6.30]},
+    {index: 1, name: "High-Strength Low-Alloy Steel", shortName: "HSS", E: 200000000, Fy: 345000, density: 7850, cost: [5.00, 7.00]},
+    {index: 2, name: "Quenched & Tempered Steel",     shortName: "QTS", E: 200000000, Fy: 485000, density: 7850, cost: [5.55, 7.75]},
+  ],
+  shapes: _.map(crossSections, ({getShape}, sectionIndex) => {
+    return _.map(widths, (width, sizeIndex) => {
+      return getShape(sectionIndex, sizeIndex, width);
+    });
+  }),
 
+  //Analysis
+  deadLoadFactor: 1.25,
+  liveLoadFactor: 1.75 * 1.33,
 
-    //inventory
-    f.SHAPE_INCREASE_SIZE = 1;
-    f.SHAPE_DECREASE_SIZE = 2;
-    f.compressionResistanceFactor = 0.90;
-    f.tensionResistanceFactor = 0.95;
-    f.orderingFee = 1000.00;
-    f.connectionFee = 500.00;
-    f.widths=[
-        30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80,                /* 0 to 10 */
-        90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, /* 11 to 22 */
-        220, 240, 260, 280, 300,                                   /* 23 to 27 */
-        320, 340, 360, 400, 500                                    /* 28 to 32 */
-    ];
-    f.crossSections = [
-    {"index":0,"name":"Solid Bar","shortName":"Bar","getShapes":function(wpbd){
-        var nSizes = wpbd.widths.length;
-        var f = Array(nSizes);
-        for (var i=0;i<nSizes;i++){
-            var width = wpbd.widths[i];
-            var area = width*width * 1e-6;
-            var moment = width*width*width*width / 12 * 1e-12;
-            f[i] = wpbd_shape_new(this,i,width+"x"+width,width,area,moment,width);
-        }
-        return f;
+  iledMemberDegradation: 1.0 / 50.0,
 
-    }},
-    {"index":1,"name":"Hollow Tube","shortName":"Tube","getShapes":function(wpbd){
-        var nSizes = wpbd.widths.length;
-        var f=Array(nSizes);
-        for(var i=0;i<nSizes;i++){
-            var width = wpbd.widths[i];
-            /*
-            double width = 0;
-            if (sizeIndex < 15) { // 0 -> 10
-                width = 5 * (2 - 0 + sizeIndex);
-            } else if (sizeIndex < 32) { // 15 -> 90
-                width = 10 * (9 - 15 + sizeIndex);
-            } else { // 32 -> 300
-                width = 100 * (3 - 32 + sizeIndex);
-            }
-            */
-            var thickness = Math.floor(Math.max(width / 20, 2));
-            var area = thickness*(width-thickness)* 4 * 1e-6;
-            var moment = (width*width*width*width - Math.pow(width - 2 * thickness,4)) / 12 * 1e-12;
-            f[i] = wpbd_shape_new(this, i, width+"x"+width+"x"+thickness, width, area, moment, thickness);
-        }
-        return f;
+  T_FAILED: -1,
+  FAILED: 1e6,
+  NO_STATUS: 0,
+  FAILS_SLENDERNESS: 1,
+  UNSTABLE: 2,
+  FAILS_LOAD_TEST: 3,
+  PASSES: 4,
+  defaultBridgeString: "2014205320000011 19  0  0 16  0 32  0 48  0 64  0 80  0  8 16 24 16 40 17 56 16 72 16 1 71118 7 81116 8 91118 91011181011111611 61118 6 50112 5 420 5 4 320 5 3 220 5 2 10112 7 220 5 2 81116 8 30112 3 90112 9 40112 410011210 51116 51120 50.40|0.00|0.31|0.00|0.46|0.00|0.46|0.00|0.31|0.00|0.40|0.00|0.00|0.09|0.00|0.21|0.00|0.26|0.00|0.21|0.00|0.09|0.00|0.20|0.24|0.00|0.00|0.12|0.08|0.04|0.08|0.04|0.00|0.12|0.24|0.00|0.00|0.20||00007B-|1|2.000|",
 
-    }}];
-    f.materials=[
-        wpbd_material_new(0, "Carbon Steel",                  "CS",  200000000, 250000, 7850, [4.50, 6.30]),
-        wpbd_material_new(1, "High-Strength Low-Alloy Steel", "HSS", 200000000, 345000, 7850, [5.00, 7.00]),
-        wpbd_material_new(2, "Quenched & Tempered Steel",     "QTS", 200000000, 485000, 7850, [5.55, 7.75])];
-    f.shapes=Array(f.crossSections.length);
-    for(var i=0;i<f.crossSections.length;i++){
-        f.shapes[i]=f.crossSections[i].getShapes(f);
-    }
+  //grid
+  abutmentClearanc:1,
+  wearSurfaceHeight: 0.80,
 
-    //Analysis
-    f.deadLoadFactor = 1.25;
-    f.liveLoadFactor = 1.75 * 1.33;
-    
-    f.failedMemberDegradation = 1.0 / 50.0;
-    
-    f.NOT_FAILED = -1;
-    f.FAILED = 1e6;
-    f.NO_STATUS = 0;
-    f.FAILS_SLENDERNESS = 1;
-    f.UNSTABLE = 2;
-    f.FAILS_LOAD_TEST = 3;
-    f.PASSES = 4;
-    f.defaultBridgeString="2014205320000011 19  0  0 16  0 32  0 48  0 64  0 80  0  8 16 24 16 40 17 56 16 72 16 1 71118 7 81116 8 91118 91011181011111611 61118 6 50112 5 420 5 4 320 5 3 220 5 2 10112 7 220 5 2 81116 8 30112 3 90112 9 40112 410011210 51116 51120 50.40|0.00|0.31|0.00|0.46|0.00|0.46|0.00|0.31|0.00|0.40|0.00|0.00|0.09|0.00|0.21|0.00|0.26|0.00|0.21|0.00|0.09|0.00|0.20|0.24|0.00|0.00|0.12|0.08|0.04|0.08|0.04|0.00|0.12|0.24|0.00|0.00|0.20||00007B-|1|2.000|";
-
-    //grid
-    f.abutmentClearance=1;
-    f.wearSurfaceHeight = 0.80;
-
-    //custom
-    f.guiLayers=3;
-    f.flags={
-        "condition":1,
-        "bridge":2,
-        "analyze":4,
-        "select":8
-    };
-    f.key="QuenchHollow";
-    return f;
-}
+  //custom
+  guiLayer:3,
+  flags: {
+    "condition":1,
+    "bridge":2,
+    "analyze":4,
+    "select":8
+  },
+  key: "QuenchHollow"
+};
 window.wpbd_material_get = (index) => {
     return wpbd.materials[index];
 }
