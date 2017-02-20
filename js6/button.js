@@ -1,7 +1,8 @@
+const analyzeBridge = require('./analysis');
+const _ = require('underscore');
 window.wpbdg_new = () => {
 
 }
-const analyzeBridge = require('./analysis');
 
 $("#file").on('change', function(){
   var reader = new FileReader();
@@ -76,11 +77,10 @@ window.wpbdg_analyze = () => {
     wpbdg.result=analyzeBridge(wpbdg.bridge,null);
     var members=wpbdg.bridge.members;
     var size=members.length;
-    for(var i=0;i<size;i++){
-        var m=members[i];
-        m.compressionForceStrengthRatio=wpbdg.result.maxMemberCompressiveForces[i]/wpbd_compressiveStrength(m.material,m.shape,m.getLength());
-        m.tensionForceStrengthRatio=wpbdg.result.maxMemberTensileForces[i]/wpbd_tensileStrength(m.material, m.shape);
-    }
+    _.each(wpbdg.result.members, (memberResult, im) => {
+      members[im].compressionForceStrengthRatio = memberResult.maxCompressiveForce / memberResult.compressiveStrength;
+      members[im].tensionForceStrengthRatio = memberResult.maxTensileForce / memberResult.tensileStrength;;
+    });
     wpbdg.updateFlag("analyze");
     wpbdg.update();
 }

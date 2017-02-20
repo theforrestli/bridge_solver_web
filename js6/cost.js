@@ -1,6 +1,6 @@
 const wpbd = require('./singleton');
 
-window.wpbd_cost = (bridge) => {
+module.exports = (bridge) => {
     /*
     materialShapePairs.clear();
     materialSectionPairs.clear();

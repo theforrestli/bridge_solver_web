@@ -1,5 +1,6 @@
 const wpbd = require('./singleton');
 const analyzeBridge = require('./analysis');
+const getCostReport = require('./cost');
 
 window.wpbdg_singleton = () => {
     var f={};
@@ -9,7 +10,7 @@ window.wpbdg_singleton = () => {
     f.bridge=wpbd_bridge_new();
     f.manager=wpbd_manager_new(f.bridge);
     f.result=analyzeBridge(f.bridge,null);
-    f.cost=wpbd_cost(f.bridge);
+    f.cost=getCostReport(f.bridge);
 
     //settings
     f.gridSize=0.25;
@@ -172,7 +173,7 @@ updateCondition:function(){
 },
 updateBridge:function(){
     //update data
-    this.cost=wpbd_cost(this.bridge);
+    this.cost=getCostReport(this.bridge);
 
     //update canvas
     this.cv12.width=this.cv1.width;

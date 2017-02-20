@@ -1,10 +1,11 @@
 const wpbd = require('./singleton');
+const _ = require('underscore');
 
 module.exports = (bridge,failureStatus) => {
-    var f={};
-    f.bridge=bridge;
+    var rtn={};
+    // rtn.bridge=bridge;
     var condition=bridge.condition;
-    f.status=wpbd.NO_STATUS;
+    rtn.status=wpbd.NO_STATUS;
     var nJoints=bridge.joints.length;
     var nEquations=2*nJoints;
     var nMembers=bridge.members.length;
@@ -154,8 +155,8 @@ module.exports = (bridge,failureStatus) => {
     for (var ie = 0; ie < nEquations; ie++) {
         var pivot = stiffness[ie*nEquations+ie];
         if (Math.abs(pivot) < 0.99) {
-            f.status = wpbd.UNSTABLE;
-            return f;
+            rtn.status = wpbd.UNSTABLE;
+            return rtn;
         }
         var pivr = 1.0 / pivot;
         for (var k = 0; k < nEquations; k++) {
@@ -172,88 +173,74 @@ module.exports = (bridge,failureStatus) => {
         }
         stiffness[ie*nEquations+ie] = pivr;
     }
-    f.memberForce=Array(nLoadInstances);
-    f.memberFails=Array(nLoadInstances);
-    f.jointDisplacement=Array(nLoadInstances);
-    for(var i=0;i<nLoadInstances;i++){
-        f.memberForce[i]=Array(nMembers);
-        f.memberFails[i]=Array(nMembers);
-        f.jointDisplacement[i]=Array(nEquations);
-    }
-    for (var ilc = 0; ilc < nLoadInstances; ilc++) {
-        for (var ie = 0; ie < nEquations; ie++) {
-            var tmp = 0;
-            for (var je = 0; je < nEquations; je++) {
-                tmp += stiffness[ie*nEquations+je] * pointLoads[ilc][je];
-            }
-            f.jointDisplacement[ilc][ie] = tmp;
+    rtn.loadInstances = Array(nLoadInstances);
+    rtn.loadInstances = _.times(nLoadInstances, (ilc) => {
+      const jointDisplacements = _.times(nEquations, (ie) => {
+        let tmp = 0;
+        for (var je = 0; je < nEquations; je++) {
+          tmp += stiffness[ie*nEquations+je] * pointLoads[ilc][je];
         }
-        // Compute member forces.
-        for (var im = 0; im < nMembers; im++) {
-            var e = members[im].material.E;
-            if (failureStatus != null && failureStatus[im] != wpbd.NOT_FAILED) {
-                e *= failedMemberDegradation;
-            }
-            var aeOverL = members[im].shape.area * e / length[im];
-            var ija = members[im].jointA.index;
-            var ijb = members[im].jointB.index;
-            f.memberForce[ilc][im] = aeOverL *
-                    ((cosX[im] * (f.jointDisplacement[ilc][ijb*2] - f.jointDisplacement[ilc][ija*2])) +
-                    (cosY[im] * (f.jointDisplacement[ilc][ijb*2+1] - f.jointDisplacement[ilc][ija*2+1])));
-        }
-    }
-    
-    f.memberCompressiveStrength = Array(nMembers);
-    f.memberTensileStrength = Array(nMembers);
-    f.maxMemberCompressiveForces = Array(nMembers);
-    f.maxMemberTensileForces = Array(nMembers);
-    
-    for (var im = 0; im < nMembers; im++) {
-        var material = members[im].material;
-        var shape = members[im].shape;
-        f.memberCompressiveStrength[im] = wpbd_compressiveStrength(material, shape, length[im]);
-        f.memberTensileStrength[im] = wpbd_tensileStrength(material, shape);
-    }
-    f.status = wpbd.PASSES;
-    for (var im = 0; im < nMembers; im++) {
-        var maxCompression = 0;
-        var maxTension = 0;
-        for (var ilc = 0; ilc < nLoadInstances; ilc++) {
-            var force = f.memberForce[ilc][im];
-            if (force < 0) {
-                force = -force;
-                if (force > maxCompression) {
-                    maxCompression = force;
-                }
-                f.memberFails[ilc][im] = (force / f.memberCompressiveStrength[im] > 1.0);
-            } else {
-                if (force > maxTension) {
-                    maxTension = force;
-                }
-                f.memberFails[ilc][im] = (force / f.memberTensileStrength[im] > 1.0);
-            }
-        }
-        var cRatio = maxCompression / f.memberCompressiveStrength[im];
-        var tRatio = maxTension / f.memberTensileStrength[im];
-        // A fail for any member of any kind is a fail overall.
-        if (cRatio > 1 || tRatio > 1) {
-            f.status = wpbd.FAILS_LOAD_TEST;
-        }
-        // Copy ratio information back to the bridge unless we're computing the intentionally distorted 
-        // failure bridge.
-        if (failureStatus == null) {
-            members[im].compressionForceStrengthRatio=cRatio;
-            members[im].tensionForceStrengthRatio=tRatio;
-        }
-        f.maxMemberCompressiveForces[im] = maxCompression;
-        f.maxMemberTensileForces[im] = maxTension;
+        return tmp;
+      });
+      return {
+        joints: _.times(nJoints, (ij) => {
+          return {
+            xDisplacement: jointDisplacements[ij*2],
+            yDisplacement: jointDisplacements[ij*2+1],
+          }
+        }),
+        members: _.map(members, (member, im) => {
+          var e = member.material.E;
+          if (failureStatus != null && failureStatus[im] != wpbd.NOT_FAILED) {
+            e *= failedMemberDegradation;
+          }
+          var aeOverL = member.shape.area * e / length[im];
+          var ija = member.jointA.index;
+          var ijb = member.jointB.index;
+
+          const force = aeOverL *
+            ((cosX[im] * (jointDisplacements[ijb*2] -   jointDisplacements[ija*2])) +
+             (cosY[im] * (jointDisplacements[ijb*2+1] - jointDisplacements[ija*2+1])));
+             return { force };
+        })
+      };
+    });
+
+    rtn.members = Array(nMembers);
+
+
+    rtn.memberCompressiveStrength = Array(nMembers);
+    rtn.memberTensileStrength = Array(nMembers);
+    rtn.maxMemberCompressiveForces = Array(nMembers);
+    rtn.maxMemberTensileForces = Array(nMembers);
+    rtn.members = _.map(members, ({material, shape}, im) => {
+      const forcesAndZero = _.map(rtn.loadInstances, (loadInstance) => {
+        return loadInstance.members[im].force;
+      });
+      forcesAndZero.push(0);
+      const compressiveStrength = wpbd_compressiveStrength(material, shape, length[im]);
+      const tensileStrength = wpbd_tensileStrength(material, shape);
+      const maxCompressiveForce = -_.min(forcesAndZero);
+      const maxTensileForce = _.max(forcesAndZero);
+      return {
+        compressiveStrength,
+        tensileStrength,
+        maxCompressiveForce,
+        maxTensileForce,
+      };
+    });
+    rtn.status = wpbd.PASSES;
+    if(_.any(rtn.members, (memberResult) => {
+      return memberResult.maxCompressiveForce > memberResult.compressiveStrength ||
+        memberResult.maxTensileForce > memberResult.tensileStrength;
+    })){
+      rtn.status = wpbd.FAILS_LOAD_TEST;
     }
     var slenderness=condition.allowableSlenderness;
-    for(var i=0;i<nMembers;i++){
-        if(length[i]*members[i].shape.inverseRadiusOfGyration>slenderness){
-            f.status=wpbd.FAILS_SLENDERNESS;
-            break;
-        }
+    if(_.any(members, ({shape}, im) => {
+      return length[im]*shape.inverseRadiusOfGyration>slenderness;
+    })){
+      rtn.status=wpbd.FAILS_SLENDERNESS;
     }
-    return f;
+    return rtn;
 }
