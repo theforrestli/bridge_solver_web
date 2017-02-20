@@ -1,4 +1,5 @@
 const wpbd = require('./singleton');
+const analyzeBridge = require('./analysis');
 
 window.wpbdg_singleton = () => {
     var f={};
@@ -7,7 +8,7 @@ window.wpbdg_singleton = () => {
     //core
     f.bridge=wpbd_bridge_new();
     f.manager=wpbd_manager_new(f.bridge);
-    f.result=wpbd_analyze(f.bridge,null);
+    f.result=analyzeBridge(f.bridge,null);
     f.cost=wpbd_cost(f.bridge);
 
     //settings

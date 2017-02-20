@@ -1,6 +1,7 @@
 window.wpbdg_new = () => {
 
 }
+const analyzeBridge = require('./analysis');
 
 $("#file").on('change', function(){
   var reader = new FileReader();
@@ -72,7 +73,7 @@ window.wpbdg_redo = () => {
     wpbdg.update();
 }
 window.wpbdg_analyze = () => {
-    wpbdg.result=wpbd_analyze(wpbdg.bridge,null);
+    wpbdg.result=analyzeBridge(wpbdg.bridge,null);
     var members=wpbdg.bridge.members;
     var size=members.length;
     for(var i=0;i<size;i++){

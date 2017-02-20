@@ -1,6 +1,6 @@
 const wpbd = require('./singleton');
 
-window.wpbd_analyze = (bridge,failureStatus) => {
+module.exports = (bridge,failureStatus) => {
     var f={};
     f.bridge=bridge;
     var condition=bridge.condition;

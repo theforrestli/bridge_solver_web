@@ -179,6 +179,7 @@ const wpbd = module.exports = {
   SHAPE_DECREASE_SIZE: 2,
   compressionResistanceFactor: 0.90,
   tensionResistanceFactor: 0.95,
+  connectionFee: 500.00,
   orderingFee: 1000.00,
   widths: widths,
   crossSections: _.map(crossSections, ({name, shortName}, index) => {
