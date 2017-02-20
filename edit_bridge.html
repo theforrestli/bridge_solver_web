@@ -10,6 +10,7 @@
     <link rel="icon" href="../../favicon.ico">
 
     <title>Starter Template for Bootstrap</title>
+    <link href= "https://cdn.rawgit.com/HubSpot/odometer/master/themes/odometer-theme-default.css" rel="stylesheet" type="text/css" />
 
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -54,7 +55,7 @@
             </div>
             <div class="navbar-btn btn-group">
               <span id="wpbd_report" class="btn btn-default">$</span>
-              <span id="wpbd_cost" class="btn btn-default">157,423.32</span>
+              <span id="wpbd_cost" class="btn btn-default odometer">0</span>
             </div>
             <li><a href="#contact">Contact</a></li>
           </ul>
@@ -156,34 +157,35 @@
     <script src="js/main.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="https://cdn.rawgit.com/RickStrahl/jquery-resizable/master/dist/jquery-resizable.min.js"></script>
+    <script src="https://cdn.rawgit.com/HubSpot/odometer/v0.4.6/odometer.min.js"></script>
     <script>
-    tmp2={};
-    tmp={};
-    input="2014205320000011 19  0  0 16  0 32  0 48  0 64  0 80  0  8 16 24 16 40 17 56 16 72 16 1 71118 7 81116 8 91118 91011181011111611 61118 6 50112 5 420 5 4 320 5 3 220 5 2 10112 7 220 5 2 81116 8 30112 3 90112 9 40112 410011210 51116 51120 50.40|0.00|0.31|0.00|0.46|0.00|0.46|0.00|0.31|0.00|0.40|0.00|0.00|0.09|0.00|0.21|0.00|0.26|0.00|0.21|0.00|0.09|0.00|0.20|0.24|0.00|0.00|0.12|0.08|0.04|0.08|0.04|0.00|0.12|0.24|0.00|0.00|0.20||00007B-|1|2.000|";
-    console.debug("begin");
-    bridge=wpbd_bridge_new();
-    bridge.parseByte(input);
-    console.debug("finished!");
-    console.debug(bridge.toString());
-    wpbdg=wpbdg_singleton();
-    $(document).ready(function(){
-        wpbdg.update();
-    });
-    $( window ).resize(function(){
-        wpbdg.updateFlag(0);
-        wpbdg.update();
-    });
+      tmp2={};
+      tmp={};
+      input="2014205320000011 19  0  0 16  0 32  0 48  0 64  0 80  0  8 16 24 16 40 17 56 16 72 16 1 71118 7 81116 8 91118 91011181011111611 61118 6 50112 5 420 5 4 320 5 3 220 5 2 10112 7 220 5 2 81116 8 30112 3 90112 9 40112 410011210 51116 51120 50.40|0.00|0.31|0.00|0.46|0.00|0.46|0.00|0.31|0.00|0.40|0.00|0.00|0.09|0.00|0.21|0.00|0.26|0.00|0.21|0.00|0.09|0.00|0.20|0.24|0.00|0.00|0.12|0.08|0.04|0.08|0.04|0.00|0.12|0.24|0.00|0.00|0.20||00007B-|1|2.000|";
+      console.debug("begin");
+      bridge=wpbd_bridge_new();
+      bridge.parseByte(input);
+      console.debug("finished!");
+      console.debug(bridge.toString());
+      wpbdg=wpbdg_singleton();
+      $(document).ready(function(){
+          wpbdg.update();
+      });
+      $( window ).resize(function(){
+          wpbdg.updateFlag(0);
+          wpbdg.update();
+      });
 
-    if(true){
-        var x=1;
-    }else{
-        var y=1;
-    }
-    console.debug("scope: "+x+" "+y);
-    $(".panel-left").resizable({
-      handleSelector: ".splitter",
-      resizeHeight: false
-    });
+      if(true){
+          var x=1;
+      }else{
+          var y=1;
+      }
+      console.debug("scope: "+x+" "+y);
+      $(".panel-left").resizable({
+        handleSelector: ".splitter",
+        resizeHeight: false
+      });
     </script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <!-- <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script> -->

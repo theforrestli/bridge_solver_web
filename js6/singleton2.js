@@ -168,7 +168,7 @@ updateCondition:function(){
     this.cv11.width=this.cv1.width;
     this.cv11.height=this.cv1.height;
     var ctx=this.cv11.getContext("2d");
-    ctx.fillStyle="FFF";
+    ctx.fillStyle="#FFF";
     ctx.fillRect(0,0,this.cv1.width,this.cv1.height);
 },
 updateBridge:function(){
