@@ -84,5 +84,5 @@ doOrder:function(order){
 
 };
 window.wpbd_order_new = (ja,jd,jc,ma,md,mc) => {
-    return {"ja":ja,"jd":jd,"jc":jc,"ma":ma,"md":md,"mc":mc};
+  return {"ja":ja,"jd":jd,"jc":jc,"ma":ma,"md":md,"mc":mc};
 }

@@ -1,3 +1,4 @@
+const _ = require('underscore');
 const wpbd = require('./singleton');
 const analyzeBridge = require('./analysis');
 const getCostReport = require('./cost');
@@ -186,34 +187,7 @@ updateBridge:function(){
     ctx.translate(-this.transform.dx,-this.transform.dy);
     ctx.scale(1/this.transform.r,-1/this.transform.r);
 
-    //draw members
-    ctx.strokeStyle="#00FF00";
-    ctx.lineWidth=0.3;
-    this.bridge.members.forEach(function(m){
-      var tmpj;
-      var x,y;
-      
-      ctx.beginPath();
-      tmpj=m.jointA;
-      x=tmpj.x;y=tmpj.y;
-      ctx.moveTo(tmpj.x,tmpj.y);
-      tmpj=m.jointB;
-      x+=tmpj.x;y+=tmpj.y;
-      ctx.lineTo(tmpj.x,tmpj.y);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(x/2,y/2,0.25,0,Math.PI*2);
-    });
-    
-    
-    //draw joints
-    ctx.fillStyle="#0000FF";
-    ctx.strokeStyle="#000000";
-    this.bridge.joints.forEach(function(j){
-        ctx.beginPath();
-        ctx.arc(j.x,j.y,0.25,0,Math.PI*2);
-        ctx.fill();
-    });
+    drawBridge({ctx, bridge: this.bridge});
 
     //update membertable
     var tbody=this.membertable.children("tbody");
@@ -386,3 +360,27 @@ debug:function(){
 }
 
 } //end of prototype
+
+const drawBridge = ({ctx, bridge}) => {
+  //draw members
+  ctx.save();
+  ctx.strokeStyle="#00FF00";
+  ctx.lineWidth=0.3;
+  _.each(bridge.members, ({jointA, jointB}) => {
+    ctx.beginPath();
+    ctx.moveTo(jointA.x,jointA.y);
+    ctx.lineTo(jointB.x,jointB.y);
+    ctx.stroke();
+  });
+  ctx.restore();
+
+  //draw joints
+  ctx.save();
+  ctx.fillStyle="#0000FF";
+  _.each(bridge.joints, ({x, y}) => {
+    ctx.beginPath();
+    ctx.arc(x,y,0.25,0,Math.PI*2);
+    ctx.fill();
+  });
+  ctx.restore();
+}
