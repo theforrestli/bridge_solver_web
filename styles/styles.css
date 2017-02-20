@@ -21,8 +21,10 @@ html, body {
     padding:0px;
 
 }
-#wpbd_membertables{
-    /* TODO scroll or auto? */
+#wpbd_membertable{
+  width: 100%;
+  height:100%;
+  overflow-y:scroll;
 }
 #wpbd_membertable{
     border-collapse:collapse;
@@ -65,4 +67,41 @@ test{
 
 
 
+.panel-container {
+  display: flex;
+  flex-direction: row;
+  border: 1px solid silver;
+  overflow: hidden;
 
+  /* avoid browser level touch actions */
+  xtouch-action: none;
+}
+
+.panel-left {
+  flex: 0 0 auto;
+  /* only manually resize */
+  width: 70%;
+  min-height: 200px;
+  min-width: 150px;
+  white-space: nowrap;
+  background: #838383;
+  color: white;
+}
+
+.splitter {
+  flex: 0 0 auto;
+  overflow:hidden;
+  width: 10px;
+  background: url(https://raw.githubusercontent.com/RickStrahl/jquery-resizable/master/assets/vsizegrip.png) center center no-repeat #535353;
+  min-height: 200px;
+  cursor: col-resize;
+}
+
+.panel-right {
+  flex: 1 1 auto;
+  /* resizable */
+  width: 30%;
+  min-height: 200px;
+  min-width: 200px;
+  background: #eee;
+}

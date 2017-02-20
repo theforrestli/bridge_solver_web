@@ -225,7 +225,7 @@ updateBridge:function(){
     this.membertable.trigger("update");
 
     //update cost
-    $("#wpbd_cost").text("$"+this.cost.totalCost.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));
+    $("#wpbd_cost").text(this.cost.totalCost.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));
 },
 updateAnalyze:function(){
     var members=this.bridge.members;
