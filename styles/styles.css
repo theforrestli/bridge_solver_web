@@ -109,3 +109,26 @@ test{
 .odometer.odometer-auto-theme, #wpbd_cost.odometer.odometer-theme-default {
   line-height:1.3em
 }
+
+
+#app {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+}
+
+#app-nav {
+  display: flex;
+}
+#app-main {
+  flex-grow: 1;
+  display: flex;
+  background-color: red;
+}
+#canvas {
+  flex-grow: 1;
+  background-color: green;
+}
+#member-table {
+  background-color: blue;
+}

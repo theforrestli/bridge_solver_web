@@ -51,7 +51,7 @@ const crossSections = [
   },
 ];
 
-const wpbd = module.exports = {
+module.exports = {
   anchorOffset: 8.0,
   panelSizeWorld: 4.0,
   gapDepth: 24.0,
@@ -227,46 +227,4 @@ const wpbd = module.exports = {
   },
   key: "QuenchHollow"
 };
-window.wpbd_material_get = (index) => {
-    return wpbd.materials[index];
-}
-window.wpbd_shape_get = (sectionIndex,sizeIndex) => {
-    return wpbd.shapes[sectionIndex][sizeIndex];
-}
-window.wpbd_shape_new = (section,sizeIndex,name,width,area,moment,inverseRadiusOfGyration,thickness) => {
-    return {
-        "section":section,
-        "sizeIndex":sizeIndex,
-        "name":name,
-        "width":width,
-        "area":area,
-        "moment":moment,
-        "inverseRadiusOfGyration":Math.sqrt(area/moment),
-        "thickness":thickness};
-}
-window.wpbd_compressiveStrength = (material,shape,length) => {
-    var Fy = material.Fy;
-    var area = shape.area;
-    var E = material.E;
-    var moment = shape.moment;
-    var lambda = length * length * Fy * area / (9.8696044 * E * moment);
-    return (lambda <= 2.25) ? 
-        wpbd.compressionResistanceFactor * Math.pow(0.66, lambda) * Fy * area : 
-        wpbd.compressionResistanceFactor * 0.88 * Fy * area / lambda;
-}
-window.wpbd_tensileStrength = (material, shape) =>  {
-    return wpbd.tensionResistanceFactor * material.Fy * shape.area;
-}
-window.wpbd_material_new = (index,name,shortName,E,Fy,density,cost) => {
-    return {
-        "index":index,
-        "name":name,
-        "shortName":shortName,
-        "E":E,
-        "Fy":Fy,
-        "density":density,
-        "cost":cost};
-}
-window.wpbd_round = (a,n) => {
-    return Math.round(a/n)*n;
-}
+
