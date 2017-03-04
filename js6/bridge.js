@@ -1,10 +1,219 @@
 const wpbd = require('./singleton');
+const condition = require('./condition');
 
 /*
  * joints, members, condition will not change reference 
  * condition should only be modified by get_from_code method
  * this will return a valid bridge
  */
+
+module.exports = {
+  stringToBridge(wpbd, s){
+    // src/bridgedesigner/BridgeModel.java
+    // public class BridgeModel
+    // protected void parseBytes(byte[] readBuf) throws IOException
+    const f={
+      listener:[],
+      joints:[],
+      members:[],
+      condition:{}
+    };
+    //throws IOException
+    const buf={"readBuf":s,"readPtr":0};
+
+    if (this._scanUnsigned(4, "bridge designer version",buf) != 2014) {
+        return {bridge: null, error: "bridge design file version is not 2014"};
+    }
+    const scenarioCode = this._scanUnsigned(10, "scenario code",buf);
+    f.condition = condition.codeToCondition(wpbd,scenarioCode);
+    f.joints.splice(0,Infinity);
+    f.members.splice(0,Infinity);
+
+    if (f.condition== null) {
+        throw ("invalid scenario " + scenarioCode);
+    }
+    var n_joints = this._scanUnsigned(2, "number of joints",buf);
+    var n_members = this._scanUnsigned(3, "number of members",buf);
+    for (var n = 1; n <= n_joints; n++){
+        var x = this._scanInt(3, "joint " + n + " x-coordinate",buf)/4.;
+        var y = this._scanInt(3, "joint " + n + " y-coordinate",buf)/4.;
+
+        if (n <= f.condition.prescribedJoints.length){
+            var joint = f.condition.prescribedJoints[n-1];
+            if ((x != joint.x) || (y != joint.y)) {
+                throw ("bad prescribed joint " + n);
+            }
+            f.joints.push(joint);
+        }else{
+            f.joints.push(wpbd_joint_new(n-1,x,y,false));
+        }
+    }
+    for (var n = 1; n <= n_members; n++)
+    {
+        var jointANumber = this._scanUnsigned(2, "first joint of member " + n,buf);
+        var jointBNumber = this._scanUnsigned(2, "second joint of member " + n,buf);
+        var materialIndex = this._scanUnsigned(1, "material index of member " + n,buf);
+        var sectionIndex = this._scanUnsigned(1, "section index of member " + n,buf);
+        var sizeIndex = this._scanUnsigned(2, "size index of member " + n,buf);
+
+        f.members.push(wpbd_member_new(n-1, f.joints[jointANumber - 1], f.joints[jointBNumber - 1], wpbd.materials[materialIndex],wpbd.shapes[sectionIndex][sizeIndex]));
+    }
+    console.debug("parse test");
+    for (var i = 0; i < n_members; i++){
+        var member = f.members[i];
+        member.compressionForceStrengthRatio=parseFloat(this._scanToDelimiter("compression/strength ratio",buf));
+        member.tensionForceStrengthRatio=parseFloat(this._scanToDelimiter("tension/strength ratio",buf));
+    }
+    f.designedBy = this._scanToDelimiter("name of designer",buf);
+    f.projectId = this._scanToDelimiter("project ID",buf);
+    f.iterationNumber = parseInt(this._scanToDelimiter("iteration",buf));
+    f.labelPosition = parseFloat(this._scanToDelimiter("label position",buf));
+    return f;
+  },
+  bridgeToString(wpbd, bridge){
+    // src/bridgedesigner/BridgeModel.java
+    // public class BridgeModel
+    // public String toString()
+
+    let f="";
+    f+="2014";
+
+    f+=this._writeNumber(10,bridge.condition.codeLong);
+    f+=this._writeNumber(2,bridge.joints.length);
+    f+=this._writeNumber(3,bridge.members.length);
+    bridge.joints.forEach(function(joint){
+      f+=this._writeNumber(3,Math.floor(joint.x*4));
+      f+=this._writeNumber(3,Math.floor(joint.y*4));
+    });
+    bridge.members.forEach(function(member){
+      f+=this._writeNumber(2,member.jointA.index+1);
+      f+=this._writeNumber(2,member.jointB.index+1);
+
+      f+=this._writeNumber(1,member.material.index);
+      f+=this._writeNumber(1,member.shape.sectionIndex);
+      f+=this._writeNumber(2,member.shape.sizeIndex);
+    });
+    bridge.members.forEach(function(member){
+      f+=member.compressionForceStrengthRatio.toFixed(2)+"|"+member.tensionForceStrengthRatio.toFixed(2)+"|";
+    });
+    f+=bridge.designedBy+"|"+bridge.projectId+"|"+bridge.iterationNumber+"|"+bridge.labelPosition.toFixed(3)+"|";
+    return f;
+  },
+  _scanInt(width, what, buf){
+    // src/bridgedesigner/BridgeModel.java
+    // public class BridgeModel
+    // private int scanInt(int width, String what) throws IOException 
+
+    const f=parseInt(buf.readBuf.substring(buf.readPtr,buf.readPtr+width));
+    buf.readPtr+=width;
+    if(isNaN(f)){
+        throw ("couldn't scan " + what);
+    }
+    return f;
+  },
+  _scanToDelimiter(what,buf){
+    // src/bridgedesigner/BridgeModel.java
+    // public class BridgeModel
+    // private String scanToDelimiter(String what) {
+    var readPtrOld=buf.readPtr;
+    while (buf.readBuf[buf.readPtr] != "|")
+    {
+        buf.readPtr += 1;
+    }
+    var f=buf.readBuf.substring(readPtrOld,buf.readPtr);
+    buf.readPtr += 1;
+    return f;
+  },
+  _scanUnsigned(width, what, buf){
+    // src/bridgedesigner/BridgeModel.java
+    // public class BridgeModel
+    // private int scanUnsigned(int width, String what) throws IOException {
+
+    var f=parseInt(buf.readBuf.substring(buf.readPtr,buf.readPtr+width));
+    buf.readPtr+=width;
+    if(isNaN(f)){
+        throw ("couldn't scan " + what);
+    }
+    return f;
+  },
+  _writeNumber(width,number){
+    var f=""+number;
+    return Array(width-f.length+1).join(" ")+f;
+  },
+  getNearestEntity(bridge, p, r){
+    r*=r;
+    //nearest entity
+    var f=null;
+    //check all joints
+    bridge.joints.forEach(function(j){
+        var x=p.x-j.x;
+        var y=p.y-j.y;
+        var d=x*x+y*y;
+        if(d<r){
+            f=j;
+            r=d;
+        }
+    });
+    //check members
+    bridge.members.forEach(function(m){
+        var x=(m.jointB.x+m.jointA.x)/2-p.x;
+        var y=(m.jointB.y+m.jointA.y)/2-p.y;
+        var d=x*x+y*y;
+        if(d<r){
+            f=m;
+            r=d;
+        }
+    });
+    return f;
+  },
+  tryMove(bridge, dp){
+    if(dp.x==0&&dp.y==0){
+        return null;
+    }
+    //selected joints
+    var joints=bridge.joints.filter(function(j){return j.selected&&!j.fixed});
+    if(joints.length==0){
+        //TODO smart select member?
+        return null;
+    }
+    //joints in the same spot?
+    if(joints.some(function(j1){
+        return joints.some(function(j2){
+            return j1.x+dp.x==j2.x&&j1.y+dp.y==j2.y&&j1!=j2;
+        });
+    })){
+        return null;
+    }
+
+    var condition=bridge.condition;
+    //out of boundary?
+    if(joints.some(function(j1){
+        //TODO check with condition
+        return !condition.isLegalPosition(j1.x+dp.x,j1.y+dp.y);
+    })){
+        return null;
+    }
+    //TODO more efficent
+    //member cross pier?
+    if(bridge.members.some(function(m){
+        return bridge.checkMemberWithPier(m);
+    })){
+        return null;
+    }
+    
+    //help create order
+    joints=joints.map(function(j){
+        var j2={};
+        jQuery.extend(j2,j);
+        j2.x+=dp.x;
+        j2.y+=dp.y;
+        return j2;
+    });
+    return wpbd_order_new([],[],joints,[],[],[]);
+  }
+},
+}
+
 window.wpbd_bridge_new = (s) => {
     s = s || wpbd.defaultBridgeString;
     var f={};
@@ -146,7 +355,6 @@ checkMemberWithPier:function(m){
         }
     }
     return false;
-
 },
 
 tryAddMember:function(materialIndex,sectionIndex,sizeIndex){

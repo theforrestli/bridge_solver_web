@@ -2,13 +2,15 @@ const _ = require('underscore');
 const wpbd = require('./singleton');
 const analyzeBridge = require('./analysis');
 const getCostReport = require('./cost');
+const bridge = require('./bridge');
 
 window.wpbdg_singleton = () => {
     var f={};
     jQuery.extend(f,wpbdg_prototype);
 
     //core
-    f.bridge=wpbd_bridge_new();
+    const input="2014205320000011 19  0  0 16  0 32  0 48  0 64  0 80  0  8 16 24 16 40 17 56 16 72 16 1 71118 7 81116 8 91118 91011181011111611 61118 6 50112 5 420 5 4 320 5 3 220 5 2 10112 7 220 5 2 81116 8 30112 3 90112 9 40112 410011210 51116 51120 50.40|0.00|0.31|0.00|0.46|0.00|0.46|0.00|0.31|0.00|0.40|0.00|0.00|0.09|0.00|0.21|0.00|0.26|0.00|0.21|0.00|0.09|0.00|0.20|0.24|0.00|0.00|0.12|0.08|0.04|0.08|0.04|0.00|0.12|0.24|0.00|0.00|0.20||00007B-|1|2.000|";
+    f.bridge=bridge.stringToBridge(wpbd, input);
     f.manager=wpbd_manager_new(f.bridge);
     f.result=analyzeBridge(f.bridge,null);
     f.cost=getCostReport(f.bridge);

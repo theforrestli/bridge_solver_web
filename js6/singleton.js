@@ -57,7 +57,7 @@ const wpbd = module.exports = {
   gapDepth: 24.0,
   minOverhead: 8.0,
   maxSlenderness: 300.0,
-  NDARD_TRUCK: 0,
+  STANDARD_TRUCK: 0,
   HEAVY_TRUCK: 1,
   MEDIUM_STRENGTH_DECK: 0,
   HI_STRENGTH_DECK: 1,

@@ -1,4 +1,5 @@
 const wpbd = require('./singleton');
+const Bridge = require('./bridge');
 window.wpbdg_update_geometry = () =>  {
     /* Some orientation changes leave the scroll position at something
      * that isn't 0,0. This is annoying for user experience. */
@@ -22,7 +23,7 @@ window.wpbdg_update_geometry = () =>  {
 window.wpbdg_tap = (e) => {
     if(e.srcElement==wpbdg.cv1){
         wpbdg.updateNewP(e);
-        var element=wpbdg.bridge.getNearestEntity(wpbdg.newP,2);  
+        var element=Bridge.getNearestEntity(wpbdg.bridge, wpbdg.newP,2);  
     }else{
         var element=wpbdg.bridge.members[wpbdg_get_row_index(e.srcElement)];
     }
@@ -53,7 +54,7 @@ window.wpbdg_release = (e) => {
             });
         }else{
             //TODO move joint
-            var order=wpbdg.bridge.tryMove(wpbdg.deltaP);
+            var order=Bridge.tryMove(wpbdg.bridge, wpbdg.deltaP);
             wpbdg.manager.doOrder(order);
         }
         wpbdg.updateFlag("select");
